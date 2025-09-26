@@ -111,6 +111,12 @@
 
             <section id="view-pedidos" class="view">
                 <h1>Gestão de Pedidos em Tempo Real</h1>
+
+                <div class="busca-container">
+                    <i class="fas fa-search"></i>
+                    <input type="search" id="busca-pedido" placeholder="Buscar por nº do pedido, nome ou telefone do cliente...">
+                </div>
+
                 <div class="painel-container">
                     <div class="coluna-pedidos" id="coluna-recebidos">
                         <h3>Recebidos</h3>
@@ -120,7 +126,7 @@
                                     <div class="card-header-pedido">
                                         <h4>Pedido #{{ pedido.id }}</h4>
                                         <span class="pedido-hora">{{ pedido.data_hora_pedido|time:"H:i" }}</span>
-                                    </div>
+                                        <button class="btn-cancelar-pedido" title="Cancelar Pedido">&times;</button>                                    </div>
                                     <div class="card-body-pedido">
                                         <p class="pedido-info"><strong>Cliente:</strong> {{ pedido.nome_cliente }}</p>
                                         <p class="pedido-info"><strong>Telefone:</strong> {{ pedido.telefone_cliente }}</p>
@@ -168,6 +174,7 @@
                                     <div class="card-header-pedido">
                                         <h4>Pedido #{{ pedido.id }}</h4>
                                         <span class="pedido-hora">{{ pedido.data_hora_pedido|time:"H:i" }}</span>
+                                        <button class="btn-cancelar-pedido" title="Cancelar Pedido">&times;</button>
                                     </div>
                                     <div class="card-body-pedido">
                                         <p class="pedido-info"><strong>Cliente:</strong> {{ pedido.nome_cliente }}</p>
@@ -216,6 +223,7 @@
                                     <div class="card-header-pedido">
                                         <h4>Pedido #{{ pedido.id }}</h4>
                                         <span class="pedido-hora">{{ pedido.data_hora_pedido|time:"H:i" }}</span>
+                                        <button class="btn-cancelar-pedido" title="Cancelar Pedido">&times;</button>
                                     </div>
                                     <div class="card-body-pedido">
                                         <p class="pedido-info"><strong>Cliente:</strong> {{ pedido.nome_cliente }}</p>

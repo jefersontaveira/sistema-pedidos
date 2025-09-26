@@ -750,3 +750,93 @@ input:checked + .slider:before {
     font-weight: bold;
     color: #dc3545; /* Vermelho para dar senso de urgência */
 }
+
+.popup-fechar-x {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    /* Criação do botão redondo */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+
+    /* Estilo do 'X' */
+    font-size: 2rem;
+    color: #6c757d; /* Cinza mais escuro */
+    line-height: 40px; /* Alinha o 'X' verticalmente */
+    text-align: center;
+
+    /* Funcionalidade */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+
+    /* Efeito suave de transição */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.popup-fechar-x:hover {
+    background-color: #f1f3f5; /* Fundo cinza bem claro ao passar o mouse */
+    color: #343a40; /* 'X' fica mais escuro */
+}
+
+/* --- Estilos para o Campo de Busca de Pedidos --- */
+.busca-container {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.busca-container .fa-search {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+}
+
+#busca-pedido {
+    width: 50%;
+    padding: 0.75rem 1rem 0.75rem 40px; /* Espaçamento à esquerda para o ícone */
+    font-size: 1rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 20px; /* Bordas arredondadas */
+    box-sizing: border-box;
+}
+
+#busca-pedido:focus {
+    outline: none;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 2px rgba(74, 14, 110, 0.2);
+}
+
+/* --- Estilos para o Botão de Cancelar Pedido --- */
+.btn-cancelar-pedido {
+    background-color: #f1f3f5;
+    color: #868e96;
+    border: 1px solid #dee2e6;
+    width: 28px;
+    height: 28px;
+    border-radius: 15%; /* Deixa o botão redondo */
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 26px; /* Alinha o 'X' verticalmente */
+    text-align: center;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancelar-pedido:hover {
+    background-color: #dc3545; /* Fica vermelho ao passar o mouse */
+    color: white;
+    border-color: #dc3545;
+}
+
+/* Pequeno ajuste no span da hora que movemos */
+.card-header-pedido h4 .pedido-hora {
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: #6c757d;
+    margin-left: 0.5rem;
+}

@@ -180,6 +180,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Procura por um botão de finalizar
         const finalizarButton = event.target.closest('.btn-finalizar');
 
+        // Procura o botão de X para cancelar o pedido
+        const cancelarButton = event.target.closest('.btn-cancelar-pedido');
+
         // Agora, verificamos qual botão foi de fato clicado
 
         if (editButton) {
@@ -233,6 +236,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (confirm('Você tem certeza que deseja finalizar este pedido? Ele será removido do painel.')) {
                 // Chama a função para mudar o status para 'entregue'
                 atualizarStatusPedido(pedidoId, 'entregue', card);
+            }
+        }
+
+        if (cancelarButton) {
+            const card = cancelarButton.closest('.card-pedido');
+            const pedidoId = card.dataset.pedidoId;
+
+            // Mostra a mensagem de confirmação que você pediu
+            if (confirm('Você realmente deseja cancelar o pedido?')) {
+                // Chama a nossa função já existente com o novo status 'cancelado'
+                atualizarStatusPedido(pedidoId, 'cancelado', card);
             }
         }
     });
@@ -538,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log(data.message);
 
                 // Se o pedido foi entregue, removemos o card e encerramos.
-                if (novoStatus === 'entregue') {
+                if (novoStatus === 'entregue' || novoStatus === 'cancelado') {
                     cardElemento.remove();
                     return;
                 }
@@ -695,6 +709,38 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error("Erro de rede ao preparar impressão:", error);
             alert("Falha de conexão ao preparar a impressão.");
         }
+    }
+
+    // =================================================================
+    // == LÓGICA DO FILTRO DE BUSCA DE PEDIDOS ==
+    // =================================================================
+
+    const campoBusca = document.getElementById('busca-pedido');
+
+    if (campoBusca) {
+        // O evento 'input' é disparado toda vez que o texto no campo muda
+        campoBusca.addEventListener('input', function() {
+            // Pega o texto digitado e converte para minúsculas para uma busca sem distinção
+            const termoBusca = this.value.toLowerCase().trim();
+
+            // Seleciona todos os cards de pedido que estão na tela
+            const todosCards = document.querySelectorAll('.card-pedido');
+
+            // Passa por cada card para decidir se ele deve ser mostrado ou escondido
+            todosCards.forEach(card => {
+                // Coleta todo o texto de dentro do card que pode ser pesquisado
+                const textoDoCard = card.textContent.toLowerCase();
+
+                // Verifica se o texto do card inclui o termo digitado
+                if (textoDoCard.includes(termoBusca)) {
+                    // Se incluir, garante que o card esteja visível
+                    card.style.display = 'flex'; // Usamos flex pois o card é um flex container
+                } else {
+                    // Se não incluir, esconde o card
+                    card.style.display = 'none';
+                }
+            });
+        });
     }
 
 }); // Fim do 'DOMContentLoaded'
