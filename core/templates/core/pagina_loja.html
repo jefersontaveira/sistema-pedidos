@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio - {{ loja.nome }}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body data-loja-id="{{ loja.id }}" data-loja-whatsapp="{{ loja.telefone }}">
+
+    <header class="header-fixo">
+        <div class="logo">
+            <h1>{{ loja.nome }}</h1>
+        </div>
+        <div id="icone-carrinho" class="carrinho-icone-container">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="carrinho-contador" class="carrinho-contador"></span>
+        </div>
+    </header>
+
+    <main class="main-content-cardapio">
+        {% for categoria in categorias %}
+            <section class="categoria-menu" data-categoria-nome="{{ categoria.nome }}" data-categoria-id="{{ categoria.id }}">
+                <h2>{{ categoria.nome }}</h2>
+                {% for produto in categoria.produtos.all %}
+                    {% if produto.disponivel %}
+                        <div class="item-menu"
+                             data-produto-id="{{ produto.id }}"
+                             data-produto-nome="{{ produto.nome }}"
+                             data-produto-preco="{{ produto.preco }}">
+                            <p class="item-nome">{{ produto.nome }}</p>
+                            <p class="item-preco">R$ {{ produto.preco }}</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </section>
+        {% endfor %}
+
+        <!--Tela de checkout-->
+
+        <div id="tela-checkout" class="checkout-container">
+            <div class="checkout-form-panel">
+                <div class="checkout-header">
+                    <button id="btn-voltar-cardapio">&larr; Voltar ao Cardápio</button>
+                </div>
+                <form id="form-checkout">
+                    <h3>Seus Dados</h3>
+                    <label for="nome">Seu Nome Completo:</label>
+                    <input type="text" id="nome" name="nome" required>
+
+                    <label for="telefone">Seu WhatsApp:</label>
+                    <input type="tel" id="telefone" name="telefone" placeholder="(99) 99999-9999" required>
+
+                    <h3>Endereço de Entrega</h3>
+                    <div class="campo-grupo-endereco">
+                        <div class="campo-rua">
+                            <label for="endereco-rua">Rua / Avenida:</label>
+                            <input type="text" id="endereco-rua" name="rua" required>
+                        </div>
+                        <div class="campo-numero">
+                            <label for="endereco-numero">Número:</label>
+                            <input type="text" id="endereco-numero" name="numero" required>
+                        </div>
+                    </div>
+                    <label for="endereco-bairro">Bairro:</label>
+                    <input type="text" id="endereco-bairro" name="bairro" required>
+
+                    <label for="endereco-referencia">Ponto de Referência (opcional):</label>
+                    <input type="text" id="endereco-referencia" name="referencia">
+
+                    <h3>Pagamento</h3>
+                    <label for="pagamento">Forma de Pagamento:</label>
+                    <select id="pagamento" name="pagamento" required>
+                        <option value="pix">Pix</option>
+                        <option value="cartao">Cartão de Crédito/Débito</option>
+                        <option value="dinheiro">Dinheiro</option>
+                    </select>
+
+                    <div id="campo-troco" style="display: none;">
+                        <label for="troco-para">Troco para quanto?</label>
+                        <input type="number" id="troco-para" name="troco" step="0.01" placeholder="Ex: 50.00">
+                    </div>
+
+                    <label for="observacoes">Observações (opcional):</label>
+                    <textarea id="observacoes" name="observacoes" rows="2"></textarea>
+
+                    <div class="checkout-total">
+                        <span>Total do Pedido:</span>
+                        <span id="checkout-total-valor">R$ 0,00</span>
+                    </div>
+
+                    <div class="checkout-actions">
+                        <button type="button" id="btn-realizar-pedido-painel" class="btn-secundario-checkout">Realizar Pedido</button>
+                        <button type="button" id="btn-enviar-whatsapp" class="btn-primario-checkout">Enviar via WhatsApp</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <footer class="rodape-acoes-cardapio">
+            <button id="btn-fazer-outro-pedido" class="btn-secundario-rodape">Adicionar e Montar Outro</button>
+            <button id="btn-finalizar-direto" class="btn-primario-rodape">Finalizar Pedido</button>
+        </footer>
+    </main>
+
+    <div id="carrinho-overlay" class="carrinho-overlay"></div>
+
+    <aside id="carrinho-sidebar" class="carrinho-sidebar">
+        <div class="carrinho-header">
+            <h3>Meu Pedido</h3>
+            <button id="btn-fechar-carrinho" class="btn-fechar-sidebar">&times;</button>
+        </div>
+
+        <div class="carrinho-body">
+            <div class="carrinho-final">
+                <h4>Itens no carrinho</h4>
+                <div id="itens-carrinho-final">
+                    </div>
+            </div>
+        </div>
+
+        <div class="carrinho-footer">
+            <div class="total-carrinho">
+                <span>Total:</span>
+                <span id="total-carrinho-final">R$ 0,00</span>
+            </div>
+            <button id="btn-finalizar-pedido">Finalizar Pedido</button>
+        </div>
+    </aside>
+
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+    </body>
+</html>

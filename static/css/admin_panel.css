@@ -1,0 +1,752 @@
+/* static/css/admin_panel.css */
+:root {
+    --cor-primaria: #4a0e6e;
+    --cor-primaria-clara: #6a1b9a;
+    --cor-fundo: #f4f7fa;
+    --cor-fundo-painel: #ffffff;
+    --cor-texto: #333;
+    --cor-texto-claro: #f8f9fa;
+    --cor-borda: #dee2e6;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto);
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 240px 1fr; /* Largura do menu lateral e o resto */
+    grid-template-areas: "sidebar main";
+    min-height: 100vh;
+}
+
+/* --- Estilos do Menu Lateral (Sidebar) --- */
+.sidebar {
+    grid-area: sidebar;
+    background-color: var(--cor-primaria);
+    color: var(--cor-texto-claro);
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--cor-primaria-clara);
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.sidebar-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 1rem 0;
+}
+
+.sidebar-menu .menu-item a {
+    display: block;
+    padding: 1rem 1.5rem;
+    color: var(--cor-texto-claro);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.sidebar-menu .menu-item a .fas {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-menu .menu-item:hover a {
+    background-color: var(--cor-primaria-clara);
+}
+
+.sidebar-menu .menu-item.active a {
+    background-color: #ffffff;
+    color: var(--cor-primaria);
+    font-weight: bold;
+}
+
+/* --- Estilos do Conteúdo Principal --- */
+.main-content {
+    grid-area: main;
+    padding: 2rem;
+}
+
+.view {
+    display: none; /* Todas as "telas" começam escondidas */
+}
+
+.view.active {
+    display: block; /* Apenas a "tela" ativa é mostrada */
+}
+
+.view h1 {
+    font-size: 2.5rem;
+    margin-top: 0;
+    border-bottom: 2px solid var(--cor-borda);
+    padding-bottom: 0.5rem;
+}
+
+/* static/css/painel.css */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    background-color: #f0f2f5;
+}
+header {
+    background-color: #4a0e6e;
+    color: white;
+    padding: 1rem 2rem;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+header h1, header h2 {
+    margin: 0;
+}
+.painel-container {
+    display: flex;
+    justify-content: space-around;
+    padding: 2rem;
+    gap: 2rem;
+}
+.coluna-pedidos {
+    flex: 1;
+    background-color: #e4e6eb;
+    border-radius: 8px;
+    padding: 1rem;
+}
+.coluna-pedidos h3 {
+    text-align: center;
+    margin-top: 0;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 0.5rem;
+}
+.cards-container {
+    min-height: 70vh; /* Altura mínima para a coluna parecer preenchida */
+    padding: 0.5rem;
+}
+.card-pedido {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    border-left: 5px solid #007bff; /* Azul para "Recebidos" */
+}
+.card-pedido h4 {
+    margin: 0 0 0.5rem 0;
+    display: flex;
+    justify-content: space-between;
+}
+.card-pedido p {
+    margin: 0.25rem 0;
+}
+
+/* Cores para os outros status */
+#coluna-em-preparo .card-pedido {
+    border-left-color: #ffc107; /* Amarelo para "Em Preparo" */
+}
+#coluna-prontos .card-pedido {
+    border-left-color: #28a745; /* Verde para "Pronto" */
+}
+
+/* static/css/admin_panel.css - Adicionar ao final */
+
+/* --- Estilos da Seção Cardápio --- */
+.header-view {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.btn-primario {
+    background-color: var(--cor-primaria);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-primario:hover {
+    background-color: var(--cor-primaria-clara);
+}
+
+.tabela-cardapio {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+    background-color: var(--cor-fundo-painel);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabela-cardapio th, .tabela-cardapio td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabela-cardapio th {
+    background-color: var(--cor-fundo);
+}
+
+.tabela-cardapio tr:last-child td {
+    border-bottom: none;
+}
+
+.btn-acao-editar {
+    background: none;
+    border: 1px solid var(--cor-borda);
+    color: #555;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+}
+
+.btn-acao-editar:hover {
+    background-color: var(--cor-fundo);
+    color: var(--cor-primaria);
+}
+
+/* --- Estilos do Interruptor (Toggle Switch) --- */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #28a745; /* Verde */
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* --- Estilos do Modal Genérico --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Começa escondido */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex; /* Classe 'active' para mostrar o modal */
+}
+
+.modal-content {
+    background-color: var(--cor-fundo-painel);
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+#form-adicionar-produto .campo-grupo {
+    margin-top: 1rem;
+    display: none; /* Campos começam escondidos */
+}
+
+#form-adicionar-produto label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: bold;
+}
+
+#form-adicionar-produto input,
+#form-adicionar-produto select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: 4px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Garante que o padding não aumente a largura */
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--cor-borda);
+    padding-top: 1.5rem;
+}
+
+.btn-secundario {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-acao-excluir {
+    background: none;
+    border: 1px solid var(--cor-borda);
+    color: #dc3545; /* Vermelho perigo */
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+    border-radius: 5px;
+    margin-left: 0.5rem;
+}
+
+.btn-acao-excluir:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* --- Estilos da Seção Dashboard --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Coluna da esquerda 2x maior que a da direita */
+    gap: 1.5rem; /* Espaçamento entre os cards */
+}
+
+.dashboard-card {
+    background-color: var(--cor-fundo-painel);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-card h3 {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    font-size: 1.2rem;
+}
+
+/* Resumo Financeiro */
+.financeiro-container {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.info-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.info-titulo {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.info-subtitulo {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.info-valor {
+    font-size: 1.75rem;
+    font-weight: bold;
+    margin-top: 0.25rem;
+}
+
+.mini-grafico-linha {
+    height: 40px;
+    width: 100%;
+    margin-top: 1rem;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 30" fill="none" stroke="%236c757d" stroke-width="2" stroke-linecap="round"><path d="M 0 20 Q 10 5, 20 20 T 40 20 T 60 20 T 80 20 T 100 20" /></svg>');
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.mini-grafico-pizza {
+    height: 60px;
+    width: 60px;
+    margin-top: 0.5rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--cor-primaria) 0% 65%, #e9ecef 65% 100%);
+}
+
+/* Produtos mais vendidos */
+.lista-produtos-vendidos {
+    list-style-type: none;
+    padding-left: 0;
+}
+.lista-produtos-vendidos li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--cor-borda);
+}
+.lista-produtos-vendidos li:last-child {
+    border-bottom: none;
+}
+.lista-produtos-vendidos li::before {
+    content: "•";
+    color: var(--cor-primaria);
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+/* Pedidos em Tempo Real */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-novo-pedido {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    background-color: #e9ecef;
+    border: none;
+    cursor: pointer;
+}
+
+.barra-progresso-pedidos {
+    width: 100%;
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+.barra-progresso-pedidos .progresso {
+    width: 70%; /* Exemplo */
+    height: 100%;
+    background-color: var(--cor-primaria);
+}
+
+.legenda-pedidos {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.status-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.cor-dot {
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+.cor-dot.aguardando { background-color: var(--cor-primaria); }
+.cor-dot.em-preparo { background-color: #ffc107; }
+.cor-dot.pronto { background-color: #28a745; }
+
+.status-contador {
+    margin-left: auto;
+    font-weight: bold;
+    background-color: #e9ecef;
+    padding: 0.1rem 0.5rem;
+    border-radius: 5px;
+}
+
+/* Gestão */
+.alerta-gestao {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 5px;
+    margin-bottom: 0.5rem;
+}
+
+.alerta-gestao .fas {
+    color: #ffc107;
+    margin-right: 0.75rem;
+}
+
+.card-pedido {
+    /* Removemos o padding antigo para dar mais controle às seções internas */
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header-pedido {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.card-header-pedido h4 {
+    margin: 0;
+}
+
+.pedido-hora {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.card-body-pedido {
+    padding: 0.75rem 1rem;
+}
+
+.pedido-info, .pedido-endereco, .pedido-total {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.pedido-endereco {
+    /* Permite que o endereço quebre a linha se for muito longo */
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.pedido-total {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 0.75rem;
+}
+
+.card-actions-pedido {
+    padding: 0.75rem 1rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid var(--cor-borda);
+    text-align: right;
+}
+
+.btn-aceitar-pedido {
+    background-color: #28a745; /* Verde sucesso */
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-aceitar-pedido:hover {
+    background-color: #218838;
+}
+
+/* --- Estilo para o Drag-and-Drop --- */
+.card-pedido {
+    cursor: grab; /* Indica que o card é arrastável */
+}
+
+.card-fantasma {
+    opacity: 0.4;
+    background: #f0f2f5;
+    border: 2px dashed #6c757d;
+}
+
+/* Novo botão 'Ver Detalhes' */
+.btn-ver-detalhes {
+    background-color: #6c757d; /* Cinza */
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-right: 0.5rem; /* Espaçamento */
+}
+
+.btn-ver-detalhes:hover {
+    background-color: #5a6268;
+}
+
+/* Estilos para o conteúdo do Modal de Detalhes */
+#modal-detalhes-pedido h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+#modal-detalhes-pedido p {
+    margin: 0.4rem 0;
+}
+.detalhes-total {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: right;
+}
+#detalhes-itens-lista ul {
+    padding-left: 20px;
+    margin: 0;
+}
+#detalhes-observacoes {
+    margin-top: 1rem;
+    padding: 0.5rem;
+    background-color: #fffbe6;
+    border-left: 3px solid #ffc107;
+}
+
+/* Estilos para Impressão */
+@media print {
+    body * {
+        visibility: hidden; /* Esconde tudo */
+    }
+    #conteudo-imprimivel, #conteudo-imprimivel * {
+        visibility: visible; /* Mostra apenas a área de impressão */
+    }
+    #conteudo-imprimivel {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
+
+/* Transforma o container de ações em um flexbox para alinhar os itens */
+.card-actions-pedido {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Estilo base para os novos botões de ícone */
+.btn-acao-card {
+    background-color: transparent;
+    border: 1px solid var(--cor-borda);
+    color: #6c757d;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%; /* Deixa o botão redondo */
+    cursor: pointer;
+    margin-right: 0.5rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.btn-acao-card:hover {
+    background-color: #e9ecef;
+    color: var(--cor-primaria);
+}
+
+/* Estilo base para o botão de ação principal */
+.btn-acao-principal {
+    border: none;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: white;
+}
+
+/* Cores específicas para cada estado */
+.btn-aceitar-pedido {
+    background-color: #28a745; /* Verde */
+}
+.btn-aceitar-pedido:hover {
+    background-color: #218838;
+}
+.btn-prosseguir {
+    background-color: #ffc107; /* Amarelo */
+    color: #212529; /* Texto escuro para melhor contraste com amarelo */
+}
+.btn-prosseguir:hover {
+    background-color: #e0a800;
+}
+.btn-finalizar {
+    background-color: #343a40; /* Cinza escuro */
+}
+.btn-finalizar:hover {
+    background-color: #23272b;
+}
+
+/* --- Novos Estilos para o Card de Pedido Melhorado --- */
+
+.entregador-select-container {
+    margin-top: 1rem;
+    border-top: 1px solid var(--cor-borda);
+    padding-top: 1rem;
+}
+
+.entregador-select-container label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.entregador-select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+}
+
+.acao-principal-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pedido-timer {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #dc3545; /* Vermelho para dar senso de urgência */
+}

@@ -1,0 +1,25 @@
+# Arquivos de cache do Python
+__pycache__/
+*.pyc
+
+# Arquivos de Banco de Dados de Desenvolvimento
+db.sqlite3
+db.sqlite3-journal
+
+# Arquivos de Ambiente Virtual
+venv/
+env/
+
+# Arquivos de IDEs e Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos de Mídia enviados pelos usuários (logos, fotos de produtos)
+# Geralmente, estes são gerenciados por um serviço de armazenamento em produção
+/media/
+
+# Arquivos de sistema operacional
+.DS_Store
+Thumbs.db
