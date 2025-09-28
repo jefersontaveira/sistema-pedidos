@@ -701,7 +701,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 popularModalDetalhes(data.pedido);
                 setTimeout(function() {
                     window.print();
-                }, 100); // 100 milissegundos é imperceptível para o usuário.
+                }, 100);
             } else {
                 alert('Erro ao preparar impressão: ' + data.error);
             }

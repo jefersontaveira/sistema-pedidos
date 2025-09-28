@@ -249,7 +249,7 @@
                                             <button class="btn-acao-card btn-imprimir-card" title="Imprimir Pedido"><i class="fas fa-print"></i></button>
                                         </div>
                                         <div class="acao-principal-container">
-                                            {% if pedido.status == 'recebido' %}
+                                            {% if pedido.statusstatus == 'recebido' %}
                                                 <span class="pedido-timer">Expira em: 30 min</span>
                                                 <button class="btn-acao-principal btn-aceitar-pedido">Aceitar Pedido</button>
                                             {% elif pedido.status == 'em_preparo' %}

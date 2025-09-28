@@ -653,6 +653,15 @@ input:checked + .slider:before {
         top: 0;
         width: 100%;
     }
+
+    #modal-detalhes-pedido.modal-overlay {
+        position: absolute;
+        visibility: visible !important;
+        display: block !important;
+        width: 100%;
+        height: auto;
+        background-color: white !important; /* Remove o fundo cinza na impressão */
+    }
 }
 
 /* Transforma o container de ações em um flexbox para alinhar os itens */
