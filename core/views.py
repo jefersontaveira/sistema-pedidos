@@ -127,12 +127,16 @@ def admin_geral(request, loja_id):
     # Busca os entregadores no banco de dados
     entregadores_da_loja = Entregador.objects.filter(loja=loja)
 
+    # Busca todas as categorias da loja e já "pré-carrega" os produtos de cada uma
+    categorias_da_loja = Categoria.objects.filter(loja=loja).prefetch_related('produtos')
+
     context = {
         'loja': loja,
         'pedidos_recebidos': pedidos_ativos.filter(status='recebido'),
         'pedidos_em_preparo': pedidos_ativos.filter(status='em_preparo'),
         'pedidos_prontos': pedidos_ativos.filter(status='pronto'),
         'entregadores': entregadores_da_loja,
+        'categorias': categorias_da_loja,
     }
 
 

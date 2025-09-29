@@ -272,93 +272,37 @@
                     <button class="btn-primario"><i class="fas fa-plus"></i> Adicionar Produto</button>
                 </div>
 
-                <h3>Tamanhos</h3>
-                <table class="tabela-cardapio">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Preço Base</th>
-                            <th>Disponível</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody data-tipo="tamanho">
-                        {% for item in tamanhos %}
-                        <tr data-id="{{ item.id }}" data-tipo="tamanho">
-                            <td>{{ item.nome }}</td>
-                            <td>R$ {{ item.preco_base }}</td>
-                            <td>
-                                <label class="switch">
-                                    <input type="checkbox" class="toggle-disponibilidade" {% if item.disponivel %}checked{% endif %}>
-                                    <span class="slider round"></span>
-                                </label>
-                            </td>
-                            <td>
-                                <button class="btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
-                                <button class="btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-                <h3>Sabores</h3>
-                <table class="tabela-cardapio">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Disponível</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody data-tipo="sabor">
-                        {% for item in sabores %}
-                        <tr data-id="{{ item.id }}" data-tipo="sabor">
-                            <td>{{ item.nome }}</td>
-                            <td>
-                                <label class="switch">
-                                    <input type="checkbox" class="toggle-disponibilidade" {% if item.disponivel %}checked{% endif %}>
-                                    <span class="slider round"></span>
-                                </label>
-                            </td>
-                            <td>
-                                <button class="btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
-                                <button class="btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-                <h3>Adicionais</h3>
-                <table class="tabela-cardapio">
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Preço Adicional</th>
-                            <th>Disponível</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody data-tipo="adicional">
-                        {% for item in adicionais %}
-                        <tr data-id="{{ item.id }}" data-tipo="adicional">
-                            <td>{{ item.nome }}</td>
-                            <td>R$ {{ item.preco }}</td>
-                            <td>
-                                <label class="switch">
-                                    <input type="checkbox" class="toggle-disponibilidade" {% if item.disponivel %}checked{% endif %}>
-                                    <span class="slider round"></span>
-                                </label>
-                            </td>
-                            <td>
-                                <button class="btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
-                                <button class="btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                {% for categoria in categorias %}
+                    <h3>{{ categoria.nome }}</h3>
+                    <table class="tabela-cardapio">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Preço</th>
+                                <th style="width: 120px;">Disponível</th>
+                                <th style="width: 150px;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody data-tipo="{{ categoria.nome|slugify }}">
+                            {% for produto in categoria.produtos.all %}
+                            <tr data-id="{{ produto.id }}" data-tipo="{{ categoria.nome|slugify }}">
+                                <td>{{ produto.nome }}</td>
+                                <td>R$ {{ produto.preco }}</td>
+                                <td>
+                                    <label class="switch">
+                                        <input type="checkbox" class="toggle-disponibilidade" {% if produto.disponivel %}checked{% endif %}>
+                                        <span class="slider round"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn-acao-card btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
+                                    <button class="btn-acao-card btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
             </section>
 
             <section id="view-relatorios" class="view">

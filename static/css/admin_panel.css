@@ -208,6 +208,26 @@ header h1, header h2 {
     border-bottom: none;
 }
 
+/* Centraliza o cabeçalho e o conteúdo das colunas 'Disponível' e 'Ações' */
+.tabela-cardapio th:nth-child(3), /* Coluna 'Disponível' (3ª coluna) */
+.tabela-cardapio td:nth-child(3),
+.tabela-cardapio th:nth-child(4), /* Coluna 'Ações' (4ª coluna) */
+.tabela-cardapio td:nth-child(4) {
+    text-align: center;
+}
+
+/* Alinha o preço à direita */
+.tabela-cardapio th:nth-child(2), /* Coluna 'Preço' (2ª coluna) */
+.tabela-cardapio td:nth-child(2) {
+    text-align: right;
+    white-space: nowrap; /* Evita que o preço quebre a linha */
+}
+
+/* Garante que os botões de ação fiquem centralizados dentro de sua célula */
+.tabela-cardapio td:nth-child(4) .btn-acao-card {
+    margin: 0 4px; /* Adiciona um pequeno espaçamento entre os botões */
+}
+
 .btn-acao-editar {
     background: none;
     border: 1px solid var(--cor-borda);
@@ -849,3 +869,4 @@ input:checked + .slider:before {
     color: #6c757d;
     margin-left: 0.5rem;
 }
+
