@@ -122,7 +122,7 @@ def admin_geral(request, loja_id):
     loja = get_object_or_404(Loja, id=loja_id)
 
     # Filtra os pedidos que NÃO estão como 'Entregue' para exibir no painel
-    pedidos_ativos = Pedido.objects.filter(loja=loja).exclude(status='entregue').order_by('data_hora_pedido')
+    pedidos_ativos = Pedido.objects.filter(loja=loja).exclude(status__in=['entregue', 'cancelado']).order_by('data_hora_pedido')
 
     # Busca os entregadores no banco de dados
     entregadores_da_loja = Entregador.objects.filter(loja=loja)
@@ -383,7 +383,7 @@ def atualizar_status_pedido(request):
             novo_status = data.get('novo_status')
 
             # Valida se os status permitidos estão sendo enviados
-            status_validos = ['recebido', 'em_preparo', 'pronto', 'entregue']
+            status_validos = ['recebido', 'em_preparo', 'pronto', 'entregue', 'cancelado']
             if novo_status not in status_validos:
                 return JsonResponse({'success': False, 'error': 'Status inválido'})
 

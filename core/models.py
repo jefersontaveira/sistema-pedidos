@@ -130,7 +130,7 @@ class ItemPedido(models.Model):
 
 class Pedido(models.Model):
     STATUS_CHOICES = [('recebido', 'Recebido'), ('em_preparo', 'Em Preparo'), ('pronto', 'Pronto'),
-                      ('entregue', 'Entregue')]
+                      ('entregue', 'Entregue'), ('cancelado', 'Cancelado')]
 
     loja = models.ForeignKey(Loja, on_delete=models.CASCADE, related_name='pedidos')
     nome_cliente = models.CharField(max_length=100)
