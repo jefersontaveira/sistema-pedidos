@@ -24,10 +24,6 @@ urlpatterns = [
     # URLs do Painel do Lojista
     path('painel/<int:loja_id>/', views.painel_loja, name='painel_loja'),
 
-    path('configuracoes/', views.pagina_configuracoes, name='configuracoes'),
-    path('equipes/', views.pagina_equipes, name='equipes'),
-    path('relatorios/', views.pagina_relatorios, name='relatorios'),
-
     # URLs da API (usadas pelo JavaScript)
     path('loja/finalizar-pedido/', views.finalizar_pedido, name='finalizar_pedido'),
 
