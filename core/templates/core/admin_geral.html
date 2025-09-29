@@ -362,22 +362,30 @@
             </section>
 
             <section id="view-relatorios" class="view">
-
-                ##TRABALHAR NESTA PARTE AQUI
+                {# ================================================================= #}
+                {# Seção de Relatórios (Em Desenvolvimento)                          #}
+                {# ================================================================= #}
                 <h1>Relatórios & Análises</h1>
                 <p>Aqui ficarão os filtros de período e os gráficos de desempenho.</p>
             </section>
 
             <section id="view-equipe" class="view">
+                {# ================================================================= #}
+                {# Seção de Gerenciamento de Equipe                                  #}
+                {# ================================================================= #}
+
+                {# Cabeçalho da Seção: Título e Ações Principais #}
                 <div class="header-view">
                     <h1>Equipe & Funcionários</h1>
                     <div class="header-actions">
+                        {# Botão para ativar o modo de foco (funcionalidade futura) #}
                         <button class="btn-secundario" id="btn-modo-foco"><i class="fas fa-bell-slash"></i> Modo Foco</button>
+                        {# Botão para abrir o modal de adicionar novo funcionário #}
                         <button class="btn-primario" id="btn-adicionar-funcionario"><i class="fas fa-plus"></i> Adicionar Funcionário</button>
                     </div>
                 </div>
             
-                <!-- Contadores Dinâmicos -->
+                {# Contadores Dinâmicos: Exibem um resumo rápido da equipe #}
                 <div class="dashboard-grid">
                     <div class="info-card">
                         <span class="info-titulo">Total de Funcionários</span>
@@ -393,63 +401,52 @@
                     </div>
                 </div>
             
-                <!-- Tabela de Funcionários -->
-                <div class="tabela-container">
-                    <h3>Cadastro de Funcionários</h3>
-                    <table class="tabela-cardapio">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Função</th>
-                                <th>Status</th>
-                                <th>Loja/Setor</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-funcionarios-body">
-                            {% for funcionario in funcionarios %}
-                            <tr data-id="{{ funcionario.id }}">
-                                <td>{{ funcionario.user.get_full_name|default:funcionario.user.username }}</td>
-                                <td>{{ funcionario.funcao }}</td>
-                                <td>
-                                    {% if funcionario.ativo %}
-                                        <span class="status-ativo">Ativo</span>
-                                    {% else %}
-                                        <span class="status-inativo">Inativo</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ funcionario.loja.nome }}</td>
-                                <td>
-                                    <button class="btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" style="text-align: center;">Nenhum funcionário cadastrado.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            
-                <!-- Escala de Trabalho e Gráficos (Placeholders) -->
-                <div class="dashboard-grid">
-                    <div class="dashboard-card">
-                        <h3>Escala de Trabalho da Semana</h3>
-                        <!-- Placeholder para o calendário/escala -->
-                        <p>Visualização da escala de trabalho (em desenvolvimento).</p>
-                    </div>
-                    <div class="dashboard-card">
-                        <h3>Gráficos de Produtividade</h3>
-                        <!-- Placeholder para os gráficos -->
-                        <p>Gráficos de desempenho da equipe (em desenvolvimento).</p>
-                    </div>
-                </div>
+                {# Tabela de Funcionários: Lista todos os funcionários cadastrados na loja. O layout segue o padrão da tela de Cardápio. #}
+                <h3>Cadastro de Funcionários</h3>
+                <table class="tabela-cardapio">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Função</th>
+                            <th>Status</th>
+                            <th>Loja/Setor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-funcionarios-body">
+                        {# Loop para iterar sobre a lista de funcionários passada pela view #}
+                        {% for funcionario in funcionarios %}
+                        <tr data-id="{{ funcionario.id }}">
+                            <td>{{ funcionario.user.get_full_name|default:funcionario.user.username }}</td>
+                            <td>{{ funcionario.funcao }}</td>
+                            <td>
+                                {% if funcionario.ativo %}
+                                    <span class="status-ativo">Ativo</span>
+                                {% else %}
+                                    <span class="status-inativo">Inativo</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ funcionario.loja.nome }}</td>
+                            <td>
+                                {# Botões para editar e excluir um funcionário #}
+                                <button class="btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
+                                <button class="btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                        {# Mensagem exibida se não houver funcionários cadastrados #}
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Nenhum funcionário cadastrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </section>
 
             <section id="view-config" class="view">
-                ##TRABALHAR NESTA PARTE AQUI
+                {# ================================================================= #}
+                {# Seção de Configurações (Em Desenvolvimento)                       #}
+                {# ================================================================= #}
                 <h1>Configurações da Loja</h1>
                 <p>Formulário para editar horário, taxa de entrega, etc.</p>
             </section>
@@ -516,23 +513,32 @@
         </div>
     </div>
 
+    {# ================================================================= #}
+    {# Modal de Adicionar Funcionário                                    #}
+    {# ================================================================= #}
     <div id="modal-adicionar-funcionario" class="modal-overlay">
         <div class="modal-content">
             <button id="btn-fechar-modal-funcionario" class="popup-fechar-x">&times;</button>
             <h2>Adicionar Novo Funcionário</h2>
 
+            {# Formulário para criar um novo funcionário associado a um usuário existente #}
             <form id="form-adicionar-funcionario">
+                {# Token CSRF para proteção contra ataques Cross-Site Request Forgery #}
                 {% csrf_token %}
+                
+                {# Campo para selecionar um usuário do sistema #}
                 <div class="campo-grupo">
                     <label for="funcionario-user">Usuário:</label>
                     <select id="funcionario-user" name="user" required>
                         <option value="" disabled selected>Selecione um usuário...</option>
+                        {# Loop para popular a lista de usuários passada pela view #}
                         {% for user in users %}
                             <option value="{{ user.id }}">{{ user.get_full_name|default:user.username }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
+                {# Campo para definir a função do funcionário #}
                 <div class="campo-grupo">
                     <label for="funcionario-funcao">Função:</label>
                     <select id="funcionario-funcao" name="funcao" required>
@@ -543,11 +549,13 @@
                     </select>
                 </div>
 
+                {# Campo para definir se o funcionário está ativo ou inativo #}
                 <div class="campo-grupo">
                     <label for="funcionario-ativo">Ativo:</label>
                     <input type="checkbox" id="funcionario-ativo" name="ativo" checked>
                 </div>
 
+                {# Ações do Modal #}
                 <div class="modal-actions">
                     <button type="button" id="btn-cancelar-modal-funcionario" class="btn-secundario">Cancelar</button>
                     <button type="submit" class="btn-primario">Salvar Funcionário</button>
