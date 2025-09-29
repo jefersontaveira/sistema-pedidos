@@ -742,5 +742,66 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    // ================================================================= fim
+    // ================================================================= fim
+
+    // =================================================================
+    // == LÓGICA PARA REORDENAR CATEGORIAS COM DRAG-AND-DROP ==
+    // =================================================================
+
+    const categoriasContainer = document.getElementById('categorias-container');
+
+    if (categoriasContainer) {
+        // Inicia o SortableJS no nosso container de categorias
+        new Sortable(categoriasContainer, {
+            handle: '.handle-drag', // Define que o arraste só começa ao clicar na "alça" (ícone ⠿)
+            animation: 150,
+            ghostClass: 'sortable-ghost', // Classe de estilo para o placeholder
+
+            // Função que é executada QUANDO você solta uma categoria na nova posição
+            onEnd: function (evt) {
+                // Pega todos os blocos de categoria na nova ordem em que estão na tela
+                const blocos = categoriasContainer.querySelectorAll('.categoria-bloco');
+
+                // Cria uma lista apenas com os IDs, na nova ordem
+                const novaOrdemIds = Array.from(blocos).map(bloco => bloco.dataset.categoriaId);
+
+                console.log("Nova ordem de IDs para salvar:", novaOrdemIds);
+
+                // Chama a função que envia a nova ordem para o backend
+                salvarNovaOrdemCategorias(novaOrdemIds);
+            }
+        });
+    }
+
+    /**
+     * Envia a nova lista de IDs de categoria para a API no backend.
+     * @param {Array<string>} ordemIds - Um array com os IDs das categorias na nova ordem.
+     */
+    async function salvarNovaOrdemCategorias(ordemIds) {
+        const payload = {
+            ordem_ids: ordemIds
+        };
+
+        try {
+            const response = await fetch('/api/reordenar-categorias/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                console.log(data.message); // Sucesso!
+            } else {
+                alert('Ocorreu um erro ao salvar a nova ordem: ' + data.error);
+                // Futuramente, podemos reverter a ordem visualmente aqui se o backend falhar
+            }
+        } catch (error) {
+            console.error('Erro de rede:', error);
+        }
+    }
+    // ================================================================= fim
+    // ================================================================= fim
 
 }); // Fim do 'DOMContentLoaded'

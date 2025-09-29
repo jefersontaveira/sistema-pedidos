@@ -470,3 +470,23 @@ def atribuir_entregador(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def reordenar_categorias(request):
+    if request.method == 'POST':
+        try:
+            # Recebe a lista de IDs na nova ordem enviada pelo JavaScript
+            data = json.loads(request.body)
+            ordem_ids = data.get('ordem_ids', [])
+
+            # Itera sobre a lista recebida
+            for index, categoria_id in enumerate(ordem_ids):
+                # Atualiza o campo 'ordem' de cada categoria com sua nova posição (índice)
+                Categoria.objects.filter(id=categoria_id).update(ordem=index)
+
+            return JsonResponse({'success': True, 'message': 'Ordem das categorias atualizada com sucesso!'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Método inválido'})

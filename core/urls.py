@@ -29,4 +29,7 @@ urlpatterns = [
 
     # URLs da Página do Cliente (deve vir por último por ser mais genérica)
     path('loja/<uuid:slug_da_loja>/', views.pagina_loja, name='pagina_loja'),
+
+    # URL para mudar a ordem das categorias
+    path('api/reordenar-categorias/', views.reordenar_categorias, name='reordenar_categorias'),
 ]

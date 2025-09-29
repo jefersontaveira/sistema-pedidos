@@ -266,43 +266,50 @@
                 </div>
             </section>
 
-            <section id="view-cardapio" class="view">
+           <section id="view-cardapio" class="view">
                 <div class="header-view">
                     <h1>Cardápio & Produtos</h1>
-                    <button class="btn-primario"><i class="fas fa-plus"></i> Adicionar Produto</button>
+                    <div>
+                        <button id="btn-abrir-modal-categoria" class="btn-primario"><i class="fas fa-tags"></i> Adicionar Categoria</button>
+                        <button id="btn-abrir-modal-produto" class="btn-primario"><i class="fas fa-plus"></i> Adicionar Produto</button>
+                    </div>
                 </div>
 
-                {% for categoria in categorias %}
-                    <h3>{{ categoria.nome }}</h3>
-                    <table class="tabela-cardapio">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>Preço</th>
-                                <th style="width: 120px;">Disponível</th>
-                                <th style="width: 150px;">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody data-tipo="{{ categoria.nome|slugify }}">
-                            {% for produto in categoria.produtos.all %}
-                            <tr data-id="{{ produto.id }}" data-tipo="{{ categoria.nome|slugify }}">
-                                <td>{{ produto.nome }}</td>
-                                <td>R$ {{ produto.preco }}</td>
-                                <td>
-                                    <label class="switch">
-                                        <input type="checkbox" class="toggle-disponibilidade" {% if produto.disponivel %}checked{% endif %}>
-                                        <span class="slider round"></span>
-                                    </label>
-                                </td>
-                                <td>
-                                    <button class="btn-acao-card btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
-                                    <button class="btn-acao-card btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% endfor %}
+                <div id="categorias-container">
+                    {% for categoria in categorias %}
+                        <div class="categoria-bloco" data-categoria-id="{{ categoria.id }}">
+                            <h3><i class="fas fa-grip-vertical handle-drag"></i> {{ categoria.nome }}</h3>
+                            <table class="tabela-cardapio">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Preço</th>
+                                        <th style="width: 120px;">Disponível</th>
+                                        <th style="width: 150px;">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-tipo="{{ categoria.nome|slugify }}">
+                                    {% for produto in categoria.produtos.all %}
+                                    <tr data-id="{{ produto.id }}" data-tipo="{{ categoria.nome|slugify }}">
+                                        <td>{{ produto.nome }}</td>
+                                        <td>R$ {{ produto.preco }}</td>
+                                        <td>
+                                            <label class="switch">
+                                                <input type="checkbox" class="toggle-disponibilidade" {% if produto.disponivel %}checked{% endif %}>
+                                                <span class="slider round"></span>
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <button class="btn-acao-card btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="btn-acao-card btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% endfor %}
+                </div>
             </section>
 
             <section id="view-relatorios" class="view">
