@@ -99,10 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Pega as informações do produto a partir da linha da tabela (<tr>)
             const tr = toggle.closest('tr');
             const produtoId = tr.dataset.id;
-            const tipoProduto = tr.dataset.tipo;
 
             // Chama a função que se comunica com o backend
-            enviarAtualizacaoDisponibilidade(produtoId, tipoProduto, isChecked);
+            enviarAtualizacaoDisponibilidade(produtoId, isChecked);
         }
         // Verifica se a mudança foi em um seletor de entregador
         if (event.target.classList.contains('entregador-select')) {
@@ -291,13 +290,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Funções de API ---
-    async function enviarAtualizacaoDisponibilidade(produtoId, tipoProduto, disponivel) {
+    async function enviarAtualizacaoDisponibilidade(produtoId, disponivel) {
         // 1. Prepara os dados para enviar
         const payload = {
             produto_id: produtoId,
-            tipo_produto: tipoProduto,
-            disponivel: disponivel
+            disponivel: disponivel,
         };
+
 
         try {
             // 2. Envia os dados para a API
@@ -312,12 +311,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 console.log('Sucesso:', data.message);
             } else {
-                console.error('Erro ao atualizar:', data.error);
+                console.error('Ocorreu um erro ao salvar a alteração: ' + data.error);
+                const input = document.querySelector(`tr[data-id='${produtoId}'] .toggle-disponibilidade`);
+                if (input) input.checked = !disponivel;
             }
         } catch (error) {
             console.error('Erro de rede:', error);
         }
     }
+
     async function excluirProduto(produtoId, tipoProduto, linhaElemento) {
         const payload = { produto_id: produtoId, tipo_produto: tipoProduto };
         try {
@@ -384,21 +386,13 @@ document.addEventListener('DOMContentLoaded', function() {
             campoNome.style.display = 'block';
         }
     });
-    async function enviarAtualizacaoDisponibilidade(produtoId, tipoProduto, disponivel) {
-        const payload = { produto_id: produtoId, tipo_produto: tipoProduto, disponivel: disponivel };
-        try {
-            const response = await fetch('/api/atualizar-disponibilidade/',
-            { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload) });
-            const data = await response.json();
-            if (!data.success) {
-                console.error('Erro ao atualizar:', data.error);
-                const input = document.querySelector(`tr[data-id='${produtoId}'][data-tipo='${tipoProduto}'] .toggle-disponibilidade`);
-                if (input) input.checked = !disponivel;
-                }
-            } catch (error) {
-                console.error('Erro de rede:', error);
-                } }
+
+
+    // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
+
+
+
     if(formAdicionarProduto) formAdicionarProduto.addEventListener('submit', async function(event) {
         event.preventDefault();
         const editingId = formAdicionarProduto.dataset.editingId;

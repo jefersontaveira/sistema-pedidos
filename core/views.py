@@ -1,7 +1,5 @@
 # core/views.py
 
-
-
 import json
 from decimal import Decimal
 from django.http import JsonResponse
@@ -31,6 +29,7 @@ def pagina_loja(request, slug_da_loja):
     organizado por categorias e produtos.
     """
     loja = get_object_or_404(Loja, slug=slug_da_loja, ativa=True)
+    produtos_disponiveis = Produto.objects.filter(disponivel=True)
 
     # Busca todas as categorias daquela loja e, de quebra, já busca
     # todos os produtos relacionados a elas de uma vez (por performance).
@@ -42,10 +41,6 @@ def pagina_loja(request, slug_da_loja):
     }
 
     return render(request, 'core/pagina_loja.html', context)
-
-
-@csrf_exempt
-# Em core/views.py
 
 @csrf_exempt
 def finalizar_pedido(request):
@@ -144,42 +139,15 @@ def admin_geral(request, loja_id):
 
 @csrf_exempt
 def atualizar_disponibilidade(request):
-    # Verifica se a requisição é do tipo POST
     if request.method == 'POST':
         try:
-            # Carrega os dados enviados pelo JavaScript
             data = json.loads(request.body)
-            produto_id = data.get('produto_id')
-            tipo_produto = data.get('tipo_produto')
-            disponivel = data.get('disponivel')
-
-            # Mapeia o texto 'tipo_produto' para o Model Django correspondente
-            model_map = {
-                'tamanho': Tamanho,
-                'sabor': Sabor,
-                'adicional': Adicional
-            }
-            Model = model_map.get(tipo_produto)
-
-            # Validação para garantir que os dados necessários foram recebidos
-            if not all([Model, produto_id is not None, disponivel is not None]):
-                return JsonResponse({'success': False, 'error': 'Dados inválidos'})
-
-            # Busca o produto específico no banco de dados
-            produto = Model.objects.get(id=produto_id)
-
-            # Atualiza o campo 'disponivel' com o novo valor
-            produto.disponivel = disponivel
+            produto = Produto.objects.get(id=data.get('produto_id'))
+            produto.disponivel = data.get('disponivel')
             produto.save()
-
-            # Retorna uma resposta de sucesso para o JavaScript
-            return JsonResponse({'success': True, 'message': 'Status atualizado com sucesso!'})
-
-        except Model.DoesNotExist:
-             return JsonResponse({'success': False, 'error': 'Produto não encontrado'})
+            return JsonResponse({'success': True, 'message': 'Disponibilidade atualizada com sucesso!'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-
     return JsonResponse({'success': False, 'error': 'Método inválido'})
 
 def serialize_produto(produto, tipo):
