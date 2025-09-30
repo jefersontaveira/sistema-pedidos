@@ -195,10 +195,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (deleteButton) {
             const tr = deleteButton.closest('tr');
             const produtoId = tr.dataset.id;
-            const tipoProduto = tr.dataset.tipo;
             const nomeProduto = tr.cells[0].textContent;
             if (confirm(`Você tem certeza que deseja excluir o item "${nomeProduto}"?`)) {
-                excluirProduto(produtoId, tipoProduto, tr);
+                excluirProduto(produtoId, tr);
             }
         }
 
@@ -320,8 +319,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    async function excluirProduto(produtoId, tipoProduto, linhaElemento) {
-        const payload = { produto_id: produtoId, tipo_produto: tipoProduto };
+    async function excluirProduto(produtoId, linhaElemento) {
+        const payload = {
+            produto_id: produtoId,
+        };
+
         try {
             const response = await fetch('/api/excluir-produto/', {
                 method: 'POST',

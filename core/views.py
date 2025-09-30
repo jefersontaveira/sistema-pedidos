@@ -272,28 +272,30 @@ def editar_produto(request):
 
     return JsonResponse({'success': False, 'error': 'Método inválido'})
 
+
 @csrf_exempt
 def excluir_produto(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            tipo_produto = data.get('tipo_produto')
             produto_id = data.get('produto_id')
 
-            model_map = {'tamanho': Tamanho, 'sabor': Sabor, 'adicional': Adicional}
-            Model = model_map.get(tipo_produto)
+            # Validação para garantir que um ID foi enviado
+            if not produto_id:
+                return JsonResponse({'success': False, 'error': 'ID do produto não foi fornecido.'})
 
-            if not all([Model, produto_id]):
-                return JsonResponse({'success': False, 'error': 'Dados inválidos'})
+            # 1. Encontra o produto no banco de dados usando o ID.
+            #    Usamos 'Produto' diretamente, pois sabemos qual tabela procurar.
+            produto = Produto.objects.get(id=produto_id)
 
-            # Busca o produto existente e o deleta
-            produto = Model.objects.get(id=produto_id)
+            # 2. Deleta o objeto do banco de dados.
             produto.delete()
 
+            # 3. Retorna uma resposta de sucesso para o JavaScript.
             return JsonResponse({'success': True, 'message': 'Produto excluído com sucesso!'})
 
-        except Model.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Produto não encontrado'})
+        except Produto.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Produto não encontrado.'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
