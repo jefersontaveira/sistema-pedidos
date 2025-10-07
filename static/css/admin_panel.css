@@ -932,3 +932,109 @@ input:checked + .slider:before {
 .categoria-bloco.sortable-ghost > * {
     visibility: hidden;
 }
+
+/* --- Estilos Gerais para Modais (Popups) --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Começa escondido */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: var(--cor-fundo-painel);
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content .campo-grupo {
+    margin-top: 1rem;
+}
+
+.modal-content small {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--cor-borda);
+    padding-top: 1.5rem;
+}
+
+.btn-secundario {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* --- Estilos para o Cabeçalho da Categoria --- */
+.categoria-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.categoria-header h3 {
+    margin: 0;
+    padding: 0; /* Remove padding interno do h3 */
+    border-bottom: none; /* Remove a borda interna do h3 */
+}
+
+/* Ajusta a cor do botão de excluir categoria para ser diferente */
+.btn-excluir-categoria {
+    color: #dc3545; /* Vermelho */
+}
+
+.btn-excluir-categoria:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+#modal-adicionar-categoria input[type="text"] {
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#modal-adicionar-categoria input[type="text"]:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(74, 14, 110, 0.15);
+    outline: none;
+}

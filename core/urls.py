@@ -10,6 +10,10 @@ urlpatterns = [
     path('api/editar-produto/', views.editar_produto, name='editar_produto'),
     path('api/excluir-produto/', views.excluir_produto, name='excluir_produto'),
 
+    # Rota para adicionar, excluir uma categoria.
+    path('api/adicionar-categoria/', views.adicionar_categoria, name='adicionar_categoria'),
+    path('api/excluir-categoria/', views.excluir_categoria, name='excluir_categoria'),
+
     path('api/atualizar-status-pedido/', views.atualizar_status_pedido, name='atualizar_status_pedido'),
     path('api/detalhes-pedido/<int:pedido_id>/', views.detalhes_pedido, name='detalhes_pedido'),
 

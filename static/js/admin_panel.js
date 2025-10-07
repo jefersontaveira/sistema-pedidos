@@ -2,7 +2,10 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- SELEÇÃO DE ELEMENTOS GLOBAIS ---
+    // =================================================================
+    // == 1. SELEÇÃO DE ELEMENTOS GLOBAIS DO DOM ==
+    // =================================================================
+
     const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
     const views = document.querySelectorAll('.main-content .view');
     const lojaId = document.body.dataset.lojaId;
@@ -11,6 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalDetalhes = document.getElementById('modal-detalhes-pedido');
     const btnFecharDetalhes = document.getElementById('btn-fechar-detalhes');
     const btnImprimir = document.getElementById('btn-imprimir-pedido');
+
+    // --- Elementos do Modal de Adicionar Categoria ---
+    const modalCategoria = document.getElementById('modal-adicionar-categoria');
+    const btnAbrirModalCategoria = document.getElementById('btn-abrir-modal-categoria');
+    const btnFecharModalCategoria = document.getElementById('btn-fechar-modal-categoria');
+    const btnCancelarModalCategoria = document.getElementById('btn-cancelar-modal-categoria');
+    const formAdicionarCategoria = document.getElementById('form-adicionar-categoria');
+    const formAdicionarProduto = document.getElementById('form-adicionar-produto');
 
     // --- Eventos para fechar e imprimir o modal de detalhes ---
     if (btnFecharDetalhes) {
@@ -58,6 +69,37 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         ativarView('view-dashboard');
         fetchDashboardData();
+    }
+
+    // ------------------------------------------- Aqui
+
+    // --- Funções para o Modal de Categoria ---
+    function abrirModalCategoria() {
+        if (modalCategoria) modalCategoria.classList.add('active');
+    }
+    function fecharModalCategoria() {
+        if (modalCategoria) modalCategoria.classList.remove('active');
+        if (formAdicionarCategoria) formAdicionarCategoria.reset();
+    }
+
+    // --------------------------------------------- fim
+
+    // --- Listeners para o Modal de Categoria ---
+    if (btnAbrirModalCategoria) {
+        btnAbrirModalCategoria.addEventListener('click', abrirModalCategoria);
+    }
+    if (btnFecharModalCategoria) {
+        btnFecharModalCategoria.addEventListener('click', fecharModalCategoria);
+    }
+    if (btnCancelarModalCategoria) {
+        btnCancelarModalCategoria.addEventListener('click', fecharModalCategoria);
+    }
+    if (modalCategoria) {
+        modalCategoria.addEventListener('click', function(event) {
+            if (event.target === modalCategoria) {
+                fecharModalCategoria();
+            }
+        });
     }
 
     // =================================================================
@@ -111,7 +153,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             atribuirEntregador(pedidoId, entregadorId);
         }
-
     });
 
     // =================================================================
@@ -144,13 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // == LÓGICA DO CARDÁPIO (DISPONIBILIDADE, ADICIONAR, EDITAR, EXCLUIR) ==
     // =================================================================
 
-    const modal = document.getElementById('modal-adicionar-produto');
-    const modalTitulo = modal.querySelector('h2');
-    const btnAbrirModal = document.querySelector('#view-cardapio .btn-primario');
-    const btnFecharModal = document.getElementById('btn-fechar-modal');
-    const btnCancelarModal = document.getElementById('btn-cancelar-modal');
-    const formAdicionarProduto = document.getElementById('form-adicionar-produto');
-    const tipoProdutoSelect = document.getElementById('tipo-produto');
     const campoNome = document.getElementById('campo-nome');
     const campoPreco = document.getElementById('campo-preco');
     const inputNome = document.getElementById('produto-nome');
@@ -158,40 +192,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Delegação de Eventos para todas as ações do Cardápio ---
     mainContent.addEventListener('click', function(event) {
-        // Procura por um botão de editar subindo a partir do elemento clicado
-        const editButton = event.target.closest('.btn-acao-editar');
 
         // Procura por um botão de excluir
         const deleteButton = event.target.closest('.btn-acao-excluir');
-
         // Procura por um botão de ver detalhes (o ícone do olho)
         const detalhesButton = event.target.closest('.btn-ver-detalhes');
-
         // Procura por um botão de imprimir (o ícone da impressora)
         const imprimirButton = event.target.closest('.btn-imprimir-card');
-
         // Procura por um botão de aceitar pedido
         const acceptButton = event.target.closest('.btn-aceitar-pedido');
-
         // Procura por um botão de prosseguir
         const prosseguirButton = event.target.closest('.btn-prosseguir');
-
         // Procura por um botão de finalizar
         const finalizarButton = event.target.closest('.btn-finalizar');
-
         // Procura o botão de X para cancelar o pedido
         const cancelarButton = event.target.closest('.btn-cancelar-pedido');
+        // Procura o botão de Excluir categoria
+        const deleteCategoryButton = event.target.closest('.btn-excluir-categoria');
 
         // Agora, verificamos qual botão foi de fato clicado
-
-        if (editButton) {
-            const tr = editButton.closest('tr');
-            const nomeTd = tr.cells[0];
-            const precoTd = (tr.cells.length > 3) ? tr.cells[1] : null;
-            const produto = { id: tr.dataset.id, tipo: tr.dataset.tipo, nome: nomeTd.textContent, preco: precoTd ? precoTd.textContent.replace('R$ ', '').trim() : '0' };
-            abrirModalModoEditar(produto);
-        }
-
         if (deleteButton) {
             const tr = deleteButton.closest('tr');
             const produtoId = tr.dataset.id;
@@ -247,7 +266,92 @@ document.addEventListener('DOMContentLoaded', function() {
                 atualizarStatusPedido(pedidoId, 'cancelado', card);
             }
         }
+
+        if (deleteCategoryButton) {
+            const categoriaBloco = deleteCategoryButton.closest('.categoria-bloco');
+            const categoriaId = categoriaBloco.dataset.categoriaId;
+            const nomeCategoria = categoriaBloco.querySelector('h3').textContent.trim();
+
+            if (confirm(`ATENÇÃO: Você tem certeza que deseja excluir a categoria "${nomeCategoria}"? Todos os produtos dentro dela também serão apagados permanentemente.`)) {
+                excluirCategoria(categoriaId, categoriaBloco);
+            }
+        }
     });
+
+    // --- LÓGICA PARA ENVIAR O FORMULÁRIO DE NOVA CATEGORIA ---
+    if (formAdicionarCategoria) {
+        formAdicionarCategoria.addEventListener('submit', async function(event) {
+
+            console.log("Formulário de categoria enviado!");
+            event.preventDefault(); // Impede o recarregamento da página
+            const button = formAdicionarCategoria.querySelector('button[type="submit"]');
+
+            try {
+                // Desabilita o botão para impedir múltiplos cliques
+                button.disabled = true;
+                button.textContent = 'Salvando...';
+
+                const nome = document.getElementById('categoria-nome').value;
+                const payload = {
+                    loja_id: lojaId,
+                    nome: nome,
+                };
+
+                const response = await fetch('/api/adicionar-categoria/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    adicionarCategoriaNaTela(data.categoria);
+                    fecharModalCategoria();
+                } else {
+                    alert('Erro ao salvar categoria: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erro de rede:', error);
+            } finally {
+                // Reabilita o botão ao final, seja em sucesso ou erro
+                button.disabled = false;
+                button.textContent = 'Salvar Categoria';
+            }
+        });
+    }
+
+    /**
+     * Cria o HTML para um novo bloco de categoria e o adiciona na página.
+     * @param {object} categoria - O objeto da categoria retornado pela API.
+     */
+    function adicionarCategoriaNaTela(categoria) {
+        const container = document.getElementById('categorias-container');
+        if (!container) return;
+
+        const novoBloco = document.createElement('div');
+        novoBloco.className = 'categoria-bloco';
+        novoBloco.dataset.categoriaId = categoria.id;
+
+        novoBloco.innerHTML = `
+            <h3><i class="fas fa-grip-vertical handle-drag"></i> ${categoria.nome}</h3>
+            <table class="tabela-cardapio">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th style="width: 120px;">Disponível</th>
+                        <th style="width: 150px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody data-tipo="${categoria.nome.toLowerCase().replace(/\s+/g, '-')}">
+                    </tbody>
+            </table>
+        `;
+
+        container.appendChild(novoBloco);
+        novoBloco.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
 
     // =================================================================
     // == 4.6. LÓGICA DE DRAG-AND-DROP DOS PEDIDOS ==
@@ -342,130 +446,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function abrirModalModoAdicionar() {
-        formAdicionarProduto.removeAttribute('data-editing-id');
-        modalTitulo.textContent = 'Adicionar Novo Produto';
-        tipoProdutoSelect.disabled = false; modal.classList.add('active');
-        }
-
-    function abrirModalModoEditar(produto) {
-        formAdicionarProduto.dataset.editingId = produto.id;
-        formAdicionarProduto.dataset.editingTipo = produto.tipo;
-        modalTitulo.textContent = `Editar Produto: ${produto.nome}`;
-        tipoProdutoSelect.value = produto.tipo;
-        tipoProdutoSelect.disabled = true;
-        tipoProdutoSelect.dispatchEvent(new Event('change'));
-        inputNome.value = produto.nome;
-        inputPreco.value = produto.preco.replace('.', ',');
-        modal.classList.add('active');
-    }
-
-    function fecharModal() {
-        modal.classList.remove('active');
-        formAdicionarProduto.reset();
-        campoNome.style.display = 'none';
-        campoPreco.style.display = 'none';
-        tipoProdutoSelect.disabled = false;
-        formAdicionarProduto.removeAttribute('data-editing-id');
-        formAdicionarProduto.removeAttribute('data-editing-tipo');
-    }
-
-    if(btnAbrirModal) btnAbrirModal.addEventListener('click', abrirModalModoAdicionar);
-    if(btnFecharModal) btnFecharModal.addEventListener('click', fecharModal);
-    if(btnCancelarModal) btnCancelarModal.addEventListener('click', fecharModal);
-    if(modal) modal.addEventListener('click', function(event) {
-        if (event.target === modal) fecharModal();
-    });
-
-    if(tipoProdutoSelect) tipoProdutoSelect.addEventListener('change', function() {
-        const tipo = this.value;
-        campoNome.style.display = 'none';
-        campoPreco.style.display = 'none';
-        if (tipo === 'tamanho' || tipo === 'adicional') {
-            campoNome.style.display = 'block';
-            campoPreco.style.display = 'block';
-        } else if (tipo === 'sabor') {
-            campoNome.style.display = 'block';
-        }
-    });
-
 
     // --------------------------------------------------------------------
     // --------------------------------------------------------------------
-
-
-
-    if(formAdicionarProduto) formAdicionarProduto.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const editingId = formAdicionarProduto.dataset.editingId;
-        const tipo = tipoProdutoSelect.value;
-        let url = '/api/adicionar-produto/';
-        let payload = { loja_id: lojaId, tipo_produto: tipo, nome: inputNome.value, preco: inputPreco.value || '0' };
-        if (editingId) {
-            url = '/api/editar-produto/';
-            payload.produto_id = editingId;
-            }
-        try {
-            const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload) });
-            const data = await response.json();
-            if (data.success) {
-                if (editingId) {
-                    atualizarLinhaTabela(data.produto, tipo);
-                } else {
-                    adicionarLinhaTabela(data.produto, tipo);
-                }
-                fecharModal();
-            } else {
-                alert('Erro: ' + data.error);
-            } } catch (error) {
-                console.error('Erro de rede:', error);
-                alert('Erro de conexão ao tentar salvar o produto.');
-            }
-        });
-
-    function adicionarLinhaTabela(produto, tipo) {
-        const tabelaBody = document.querySelector(`.tabela-cardapio tbody[data-tipo="${tipo}"]`);
-        if(!tabelaBody) {
-            window.location.reload();
-            return;
-        }
-        let novaLinhaHTML = `<tr data-id="${produto.id}" data-tipo="${tipo}"><td>${produto.nome}</td>`;
-        if (tipo === 'tamanho') {
-            novaLinhaHTML += `<td>R$ ${produto.preco_base.replace('.',',')}</td>`;
-        } else if (tipo === 'adicional') {
-            novaLinhaHTML += `<td>R$ ${produto.preco.replace('.',',')}</td>`;
-        }
-        novaLinhaHTML += `
-            <td>
-                <label class="switch"><input type="checkbox" class="toggle-disponibilidade" ${produto.disponivel ? 'checked' : ''}>
-                    <span class="slider round"></span>
-                </label>
-            </td>
-            <td>
-                <button class="btn-acao-editar">
-                    <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="btn-acao-excluir">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-        </tr>`;
-        tabelaBody.insertAdjacentHTML('beforeend', novaLinhaHTML);
-    }
-
-    function atualizarLinhaTabela(produto, tipo) {
-        const tabelaBody = document.querySelector(`.tabela-cardapio tbody[data-tipo="${tipo}"]`);
-        const linha = tabelaBody.querySelector(
-            `tr[data-id='${produto.id}']`);
-            if (linha) {
-                linha.cells[0].textContent = produto.nome;
-                if (tipo === 'tamanho') {
-                    linha.cells[1].textContent = `R$ ${produto.preco_base.replace('.',',')}`;
-                } else if (tipo === 'adicional') {
-                    linha.cells[1].textContent = `R$ ${produto.preco.replace('.',',')}`;
-                }
-            } }
 
 
     /**
@@ -799,5 +782,28 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     // ================================================================= fim
     // ================================================================= fim
+
+    // ================================================================= fim
+    // === Função para excluir Categoria ===
+    // ================================================================= fim
+
+    async function excluirCategoria(categoriaId, blocoElemento) {
+        const payload = { categoria_id: categoriaId };
+        try {
+            const response = await fetch('/api/excluir-categoria/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (data.success) {
+                blocoElemento.remove(); // Remove o card da categoria da tela
+            } else {
+                alert('Erro ao excluir categoria: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Erro de rede:', error);
+        }
+    }
 
 }); // Fim do 'DOMContentLoaded'

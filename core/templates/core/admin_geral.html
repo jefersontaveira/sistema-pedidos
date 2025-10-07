@@ -278,7 +278,12 @@
                 <div id="categorias-container">
                     {% for categoria in categorias %}
                         <div class="categoria-bloco" data-categoria-id="{{ categoria.id }}">
-                            <h3><i class="fas fa-grip-vertical handle-drag"></i> {{ categoria.nome }}</h3>
+                            <div class="categoria-header">
+                                <h3><i class="fas fa-grip-vertical handle-drag"></i> {{ categoria.nome }}</h3>
+                                <button class="btn-acao-card btn-excluir-categoria" title="Excluir Categoria">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                             <table class="tabela-cardapio">
                                 <thead>
                                     <tr>
@@ -386,6 +391,25 @@
             <div class="modal-actions">
                 <button id="btn-imprimir-pedido" class="btn-primario"><i class="fas fa-print"></i> Imprimir</button>
             </div>
+        </div>
+    </div>
+
+    <div id="modal-adicionar-categoria" class="modal-overlay">
+        <div class="modal-content">
+            <button id="btn-fechar-modal-categoria" class="popup-fechar-x">&times;</button>
+            <h2>Adicionar Nova Categoria</h2>
+
+            <form id="form-adicionar-categoria">
+                <div class="campo-grupo" style="display: block;">
+                    <label for="categoria-nome">Nome da Categoria:</label>
+                    <input type="text" id="categoria-nome" name="nome" placeholder="Ex: Bebidas, Sobremesas" required>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="btn-cancelar-modal-categoria" class="btn-secundario">Cancelar</button>
+                    <button type="submit" class="btn-primario">Salvar Categoria</button>
+                </div>
+            </form>
         </div>
     </div>
 

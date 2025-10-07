@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Max
 from django.db.models.functions import Coalesce
 from collections import Counter
 
@@ -456,6 +456,69 @@ def reordenar_categorias(request):
 
             return JsonResponse({'success': True, 'message': 'Ordem das categorias atualizada com sucesso!'})
 
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def adicionar_categoria(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            loja_id = data.get('loja_id')
+            nome_categoria = data.get('nome')
+
+            loja = Loja.objects.get(id=loja_id)
+
+            if not nome_categoria:
+                return JsonResponse({'success': False, 'error': 'O nome da categoria é obrigatório.'})
+
+            # --- INÍCIO DA NOVA LÓGICA DE ORDEM AUTOMÁTICA ---
+            # 1. Busca a maior 'ordem' que já existe para esta loja.
+            ultima_ordem = Categoria.objects.filter(loja=loja).aggregate(Max('ordem'))['ordem__max']
+
+            # 2. Define a nova ordem. Se não houver nenhuma categoria, começa com 0. Senão, adiciona 1.
+            nova_ordem = 0 if ultima_ordem is None else ultima_ordem + 1
+            # --- FIM DA NOVA LÓGICA ---
+
+            # Cria a nova categoria com a ordem calculada
+            nova_categoria = Categoria.objects.create(
+                loja=loja,
+                nome=nome_categoria,
+                ordem=nova_ordem # Usa a nova ordem
+            )
+
+            return JsonResponse({
+                'success': True,
+                'categoria': {
+                    'id': nova_categoria.id,
+                    'nome': nova_categoria.nome,
+                    'ordem': nova_categoria.ordem
+                }
+            })
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def excluir_categoria(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            categoria_id = data.get('categoria_id')
+
+            # Encontra a categoria no banco de dados e a deleta.
+            # Graças ao 'on_delete=models.CASCADE' no model Produto,
+            # todos os produtos desta categoria serão apagados junto.
+            categoria = Categoria.objects.get(id=categoria_id)
+            categoria.delete()
+
+            return JsonResponse({'success': True, 'message': 'Categoria e seus produtos foram excluídos.'})
+
+        except Categoria.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Categoria não encontrada.'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
