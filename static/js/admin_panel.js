@@ -2,7 +2,10 @@
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- SELEÇÃO DE ELEMENTOS GLOBAIS ---
+    // =================================================================
+    // == 1. SELEÇÃO DE ELEMENTOS GLOBAIS DO DOM ==
+    // =================================================================
+
     const menuItems = document.querySelectorAll('.sidebar-menu .menu-item');
     const views = document.querySelectorAll('.main-content .view');
     const lojaId = document.body.dataset.lojaId;
@@ -11,6 +14,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalDetalhes = document.getElementById('modal-detalhes-pedido');
     const btnFecharDetalhes = document.getElementById('btn-fechar-detalhes');
     const btnImprimir = document.getElementById('btn-imprimir-pedido');
+
+    // --- Elementos do Modal de Adicionar Categoria ---
+    const modalCategoria = document.getElementById('modal-adicionar-categoria');
+    const btnAbrirModalCategoria = document.getElementById('btn-abrir-modal-categoria');
+    const btnFecharModalCategoria = document.getElementById('btn-fechar-modal-categoria');
+    const btnCancelarModalCategoria = document.getElementById('btn-cancelar-modal-categoria');
+    const formAdicionarCategoria = document.getElementById('form-adicionar-categoria');
+    const formAdicionarProduto = document.getElementById('form-adicionar-produto');
+
+    const modalAdicionar = document.getElementById('modal-adicionar-produto');
+    const modalTitulo = modalAdicionar.querySelector('h2');
+    const tipoProdutoSelect = document.getElementById('produto-categoria');
 
     // --- Eventos para fechar e imprimir o modal de detalhes ---
     if (btnFecharDetalhes) {
@@ -60,6 +75,37 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchDashboardData();
     }
 
+    // ------------------------------------------- Aqui
+
+    // --- Funções para o Modal de Categoria ---
+    function abrirModalCategoria() {
+        if (modalCategoria) modalCategoria.classList.add('active');
+    }
+    function fecharModalCategoria() {
+        if (modalCategoria) modalCategoria.classList.remove('active');
+        if (formAdicionarCategoria) formAdicionarCategoria.reset();
+    }
+
+    // --------------------------------------------- fim
+
+    // --- Listeners para o Modal de Categoria ---
+    if (btnAbrirModalCategoria) {
+        btnAbrirModalCategoria.addEventListener('click', abrirModalCategoria);
+    }
+    if (btnFecharModalCategoria) {
+        btnFecharModalCategoria.addEventListener('click', fecharModalCategoria);
+    }
+    if (btnCancelarModalCategoria) {
+        btnCancelarModalCategoria.addEventListener('click', fecharModalCategoria);
+    }
+    if (modalCategoria) {
+        modalCategoria.addEventListener('click', function(event) {
+            if (event.target === modalCategoria) {
+                fecharModalCategoria();
+            }
+        });
+    }
+
     // =================================================================
     // == LÓGICA DO WEBSOCKET (DESATIVADA TEMPORARIAMENTE) ==
     // =================================================================
@@ -99,10 +145,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Pega as informações do produto a partir da linha da tabela (<tr>)
             const tr = toggle.closest('tr');
             const produtoId = tr.dataset.id;
-            const tipoProduto = tr.dataset.tipo;
 
             // Chama a função que se comunica com o backend
-            enviarAtualizacaoDisponibilidade(produtoId, tipoProduto, isChecked);
+            enviarAtualizacaoDisponibilidade(produtoId, isChecked);
         }
         // Verifica se a mudança foi em um seletor de entregador
         if (event.target.classList.contains('entregador-select')) {
@@ -112,7 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             atribuirEntregador(pedidoId, entregadorId);
         }
-
     });
 
     // =================================================================
@@ -145,13 +189,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // == LÓGICA DO CARDÁPIO (DISPONIBILIDADE, ADICIONAR, EDITAR, EXCLUIR) ==
     // =================================================================
 
-    const modal = document.getElementById('modal-adicionar-produto');
-    const modalTitulo = modal.querySelector('h2');
-    const btnAbrirModal = document.querySelector('#view-cardapio .btn-primario');
-    const btnFecharModal = document.getElementById('btn-fechar-modal');
-    const btnCancelarModal = document.getElementById('btn-cancelar-modal');
-    const formAdicionarProduto = document.getElementById('form-adicionar-produto');
-    const tipoProdutoSelect = document.getElementById('tipo-produto');
     const campoNome = document.getElementById('campo-nome');
     const campoPreco = document.getElementById('campo-preco');
     const inputNome = document.getElementById('produto-nome');
@@ -159,47 +196,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- Delegação de Eventos para todas as ações do Cardápio ---
     mainContent.addEventListener('click', function(event) {
-        // Procura por um botão de editar subindo a partir do elemento clicado
-        const editButton = event.target.closest('.btn-acao-editar');
 
         // Procura por um botão de excluir
         const deleteButton = event.target.closest('.btn-acao-excluir');
-
         // Procura por um botão de ver detalhes (o ícone do olho)
         const detalhesButton = event.target.closest('.btn-ver-detalhes');
-
         // Procura por um botão de imprimir (o ícone da impressora)
         const imprimirButton = event.target.closest('.btn-imprimir-card');
-
         // Procura por um botão de aceitar pedido
         const acceptButton = event.target.closest('.btn-aceitar-pedido');
-
         // Procura por um botão de prosseguir
         const prosseguirButton = event.target.closest('.btn-prosseguir');
-
         // Procura por um botão de finalizar
         const finalizarButton = event.target.closest('.btn-finalizar');
-
         // Procura o botão de X para cancelar o pedido
         const cancelarButton = event.target.closest('.btn-cancelar-pedido');
+        // Procura o botão de Excluir categoria
+        const deleteCategoryButton = event.target.closest('.btn-excluir-categoria');
+        // --- ELEMENTO DO MODAL ADICIONAR PRODUTO
+        const addProductButton = event.target.closest('.btn-add-produto-categoria');
+        // --- ELEMENTO DO MODAL EDITAR CATEGORIA
+        const editCategoryButton = event.target.closest('.btn-editar-categoria');
+
 
         // Agora, verificamos qual botão foi de fato clicado
-
-        if (editButton) {
-            const tr = editButton.closest('tr');
-            const nomeTd = tr.cells[0];
-            const precoTd = (tr.cells.length > 3) ? tr.cells[1] : null;
-            const produto = { id: tr.dataset.id, tipo: tr.dataset.tipo, nome: nomeTd.textContent, preco: precoTd ? precoTd.textContent.replace('R$ ', '').trim() : '0' };
-            abrirModalModoEditar(produto);
-        }
-
         if (deleteButton) {
             const tr = deleteButton.closest('tr');
             const produtoId = tr.dataset.id;
-            const tipoProduto = tr.dataset.tipo;
             const nomeProduto = tr.cells[0].textContent;
             if (confirm(`Você tem certeza que deseja excluir o item "${nomeProduto}"?`)) {
-                excluirProduto(produtoId, tipoProduto, tr);
+                excluirProduto(produtoId, tr);
             }
         }
 
@@ -249,10 +275,154 @@ document.addEventListener('DOMContentLoaded', function() {
                 atualizarStatusPedido(pedidoId, 'cancelado', card);
             }
         }
+
+        if (deleteCategoryButton) {
+            const categoriaBloco = deleteCategoryButton.closest('.categoria-bloco');
+            const categoriaId = categoriaBloco.dataset.categoriaId;
+            const nomeCategoria = categoriaBloco.querySelector('h3').textContent.trim();
+
+            if (confirm(`ATENÇÃO: Você tem certeza que deseja excluir a categoria "${nomeCategoria}"? Todos os produtos dentro dela também serão apagados permanentemente.`)) {
+                excluirCategoria(categoriaId, categoriaBloco);
+            }
+        }
+
+        if (addProductButton) {
+            // Pega as informações da categoria a partir do botão clicado
+            const categoriaInfo = {
+                id: addProductButton.dataset.categoriaId,
+                nome: addProductButton.dataset.categoriaNome
+            };
+            // Chama a função de abrir o modal, já passando a categoria
+            abrirModalModoAdicionar(categoriaInfo);
+        }
+
+        if (editCategoryButton) {
+            const categoriaBloco = editCategoryButton.closest('.categoria-bloco');
+            const categoria = {
+                id: categoriaBloco.dataset.categoriaId,
+                ordem: categoriaBloco.dataset.categoriaOrdem,
+                nome: categoriaBloco.querySelector('h3').textContent.trim()
+            };
+            abrirModalModoEditarCategoria(categoria);
+        }
     });
 
+    // --- LÓGICA PARA ENVIAR O FORMULÁRIO DE NOVA CATEGORIA ---
+    if (formAdicionarCategoria) {
+        formAdicionarCategoria.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const button = formAdicionarCategoria.querySelector('button[type="submit"]');
+            const editingId = formAdicionarCategoria.dataset.editingId; // Verifica se está em modo de edição
+
+            let url = '/api/adicionar-categoria/';
+            const payload = {
+                loja_id: lojaId,
+                nome: document.getElementById('categoria-nome').value,
+                ordem: document.getElementById('categoria-ordem').value
+            };
+
+            // Se estiver editando, muda a URL e adiciona o ID da categoria ao payload
+            if (editingId) {
+                url = '/api/editar-categoria/';
+                payload.categoria_id = editingId;
+                payload.ordem = document.getElementById('categoria-ordem').value;
+            }
+
+            try {
+                button.disabled = true; button.textContent = 'Salvando...';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    if (editingId) {
+                        atualizarCategoriaNaTela(data.categoria);
+                    } else {
+                        adicionarCategoriaNaTela(data.categoria);
+                    }
+                    fecharModalCategoria();
+                } else {
+                    alert('Erro: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Erro de rede:', error);
+            } finally {
+                button.disabled = false; button.textContent = 'Salvar Categoria';
+            }
+        });
+    }
     // =================================================================
-    // == 4.6. LÓGICA DE DRAG-AND-DROP DOS PEDIDOS ==
+    // =================================================================
+
+    // =================================================================
+    // == LÓGICA DE ADICIONAR CATEGORIA NA TELA ==
+    // =================================================================
+
+
+    function adicionarCategoriaNaTela(categoria) {
+        const container = document.getElementById('categorias-container');
+        if (!container) return;
+
+        const novoBloco = document.createElement('div');
+        novoBloco.className = 'categoria-bloco';
+        novoBloco.dataset.categoriaId = categoria.id;
+
+        novoBloco.innerHTML = `
+            <div class="categoria-header">
+                <h3><i class="fas fa-grip-vertical handle-drag"></i> ${categoria.nome}</h3>
+                <button class="btn-acao-card btn-excluir-categoria" title="Excluir Categoria">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            <table class="tabela-cardapio">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th style="width: 120px;">Disponível</th>
+                        <th style="width: 150px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody data-tipo="${categoria.nome.toLowerCase().replace(/\s+/g, '-')}">
+                    </tbody>
+            </table>
+        `;
+        // --- FIM DA CORREÇÃO ---
+
+        container.appendChild(novoBloco);
+        novoBloco.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // =================================================================
+    // =================================================================
+
+    // =================================================================
+    // == FUNÇÃO ABRIR O MODAL MODO ADICIONAR ==
+    // =================================================================
+
+    function abrirModalModoAdicionar(categoriaInfo = null) {
+        formAdicionarProduto.removeAttribute('data-editing-id');
+        modalTitulo.textContent = 'Adicionar Novo Produto';
+
+        // Lógica inteligente para a categoria
+        if (categoriaInfo) {
+            tipoProdutoSelect.value = categoriaInfo.id;
+            tipoProdutoSelect.disabled = true; // Trava o seletor
+        } else {
+            tipoProdutoSelect.value = ""; // Começa sem nada selecionado
+            tipoProdutoSelect.disabled = false; // Garante que está destravado
+        }
+
+        // Dispara o evento 'change' para mostrar os campos corretos
+        tipoProdutoSelect.dispatchEvent(new Event('change'));
+        modalAdicionar.classList.add('active');
+    }
+
+
+    // =================================================================
+    // == LÓGICA DE DRAG-AND-DROP DOS PEDIDOS ==
     // =================================================================
 
     const colunas = document.querySelectorAll('.cards-container');
@@ -291,13 +461,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- Funções de API ---
-    async function enviarAtualizacaoDisponibilidade(produtoId, tipoProduto, disponivel) {
+    async function enviarAtualizacaoDisponibilidade(produtoId, disponivel) {
         // 1. Prepara os dados para enviar
         const payload = {
             produto_id: produtoId,
-            tipo_produto: tipoProduto,
-            disponivel: disponivel
+            disponivel: disponivel,
         };
+
 
         try {
             // 2. Envia os dados para a API
@@ -312,14 +482,20 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.success) {
                 console.log('Sucesso:', data.message);
             } else {
-                console.error('Erro ao atualizar:', data.error);
+                console.error('Ocorreu um erro ao salvar a alteração: ' + data.error);
+                const input = document.querySelector(`tr[data-id='${produtoId}'] .toggle-disponibilidade`);
+                if (input) input.checked = !disponivel;
             }
         } catch (error) {
             console.error('Erro de rede:', error);
         }
     }
-    async function excluirProduto(produtoId, tipoProduto, linhaElemento) {
-        const payload = { produto_id: produtoId, tipo_produto: tipoProduto };
+
+    async function excluirProduto(produtoId, linhaElemento) {
+        const payload = {
+            produto_id: produtoId,
+        };
+
         try {
             const response = await fetch('/api/excluir-produto/', {
                 method: 'POST',
@@ -338,138 +514,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function abrirModalModoAdicionar() {
-        formAdicionarProduto.removeAttribute('data-editing-id');
-        modalTitulo.textContent = 'Adicionar Novo Produto';
-        tipoProdutoSelect.disabled = false; modal.classList.add('active');
-        }
 
-    function abrirModalModoEditar(produto) {
-        formAdicionarProduto.dataset.editingId = produto.id;
-        formAdicionarProduto.dataset.editingTipo = produto.tipo;
-        modalTitulo.textContent = `Editar Produto: ${produto.nome}`;
-        tipoProdutoSelect.value = produto.tipo;
-        tipoProdutoSelect.disabled = true;
-        tipoProdutoSelect.dispatchEvent(new Event('change'));
-        inputNome.value = produto.nome;
-        inputPreco.value = produto.preco.replace('.', ',');
-        modal.classList.add('active');
-    }
-
-    function fecharModal() {
-        modal.classList.remove('active');
-        formAdicionarProduto.reset();
-        campoNome.style.display = 'none';
-        campoPreco.style.display = 'none';
-        tipoProdutoSelect.disabled = false;
-        formAdicionarProduto.removeAttribute('data-editing-id');
-        formAdicionarProduto.removeAttribute('data-editing-tipo');
-    }
-
-    if(btnAbrirModal) btnAbrirModal.addEventListener('click', abrirModalModoAdicionar);
-    if(btnFecharModal) btnFecharModal.addEventListener('click', fecharModal);
-    if(btnCancelarModal) btnCancelarModal.addEventListener('click', fecharModal);
-    if(modal) modal.addEventListener('click', function(event) {
-        if (event.target === modal) fecharModal();
-    });
-
-    if(tipoProdutoSelect) tipoProdutoSelect.addEventListener('change', function() {
-        const tipo = this.value;
-        campoNome.style.display = 'none';
-        campoPreco.style.display = 'none';
-        if (tipo === 'tamanho' || tipo === 'adicional') {
-            campoNome.style.display = 'block';
-            campoPreco.style.display = 'block';
-        } else if (tipo === 'sabor') {
-            campoNome.style.display = 'block';
-        }
-    });
-    async function enviarAtualizacaoDisponibilidade(produtoId, tipoProduto, disponivel) {
-        const payload = { produto_id: produtoId, tipo_produto: tipoProduto, disponivel: disponivel };
-        try {
-            const response = await fetch('/api/atualizar-disponibilidade/',
-            { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload) });
-            const data = await response.json();
-            if (!data.success) {
-                console.error('Erro ao atualizar:', data.error);
-                const input = document.querySelector(`tr[data-id='${produtoId}'][data-tipo='${tipoProduto}'] .toggle-disponibilidade`);
-                if (input) input.checked = !disponivel;
-                }
-            } catch (error) {
-                console.error('Erro de rede:', error);
-                } }
-    if(formAdicionarProduto) formAdicionarProduto.addEventListener('submit', async function(event) {
-        event.preventDefault();
-        const editingId = formAdicionarProduto.dataset.editingId;
-        const tipo = tipoProdutoSelect.value;
-        let url = '/api/adicionar-produto/';
-        let payload = { loja_id: lojaId, tipo_produto: tipo, nome: inputNome.value, preco: inputPreco.value || '0' };
-        if (editingId) {
-            url = '/api/editar-produto/';
-            payload.produto_id = editingId;
-            }
-        try {
-            const response = await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload) });
-            const data = await response.json();
-            if (data.success) {
-                if (editingId) {
-                    atualizarLinhaTabela(data.produto, tipo);
-                } else {
-                    adicionarLinhaTabela(data.produto, tipo);
-                }
-                fecharModal();
-            } else {
-                alert('Erro: ' + data.error);
-            } } catch (error) {
-                console.error('Erro de rede:', error);
-                alert('Erro de conexão ao tentar salvar o produto.');
-            }
-        });
-
-    function adicionarLinhaTabela(produto, tipo) {
-        const tabelaBody = document.querySelector(`.tabela-cardapio tbody[data-tipo="${tipo}"]`);
-        if(!tabelaBody) {
-            window.location.reload();
-            return;
-        }
-        let novaLinhaHTML = `<tr data-id="${produto.id}" data-tipo="${tipo}"><td>${produto.nome}</td>`;
-        if (tipo === 'tamanho') {
-            novaLinhaHTML += `<td>R$ ${produto.preco_base.replace('.',',')}</td>`;
-        } else if (tipo === 'adicional') {
-            novaLinhaHTML += `<td>R$ ${produto.preco.replace('.',',')}</td>`;
-        }
-        novaLinhaHTML += `
-            <td>
-                <label class="switch"><input type="checkbox" class="toggle-disponibilidade" ${produto.disponivel ? 'checked' : ''}>
-                    <span class="slider round"></span>
-                </label>
-            </td>
-            <td>
-                <button class="btn-acao-editar">
-                    <i class="fas fa-pencil-alt"></i>
-                </button>
-                <button class="btn-acao-excluir">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </td>
-        </tr>`;
-        tabelaBody.insertAdjacentHTML('beforeend', novaLinhaHTML);
-    }
-
-    function atualizarLinhaTabela(produto, tipo) {
-        const tabelaBody = document.querySelector(`.tabela-cardapio tbody[data-tipo="${tipo}"]`);
-        const linha = tabelaBody.querySelector(
-            `tr[data-id='${produto.id}']`);
-            if (linha) {
-                linha.cells[0].textContent = produto.nome;
-                if (tipo === 'tamanho') {
-                    linha.cells[1].textContent = `R$ ${produto.preco_base.replace('.',',')}`;
-                } else if (tipo === 'adicional') {
-                    linha.cells[1].textContent = `R$ ${produto.preco.replace('.',',')}`;
-                }
-            } }
+    // --------------------------------------------------------------------
+    // --------------------------------------------------------------------
 
 
     /**
@@ -742,5 +789,104 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    // ================================================================= fim
+    // ================================================================= fim
+
+    // =================================================================
+    // == LÓGICA PARA REORDENAR CATEGORIAS COM DRAG-AND-DROP ==
+    // =================================================================
+
+    const categoriasContainer = document.getElementById('categorias-container');
+
+    if (categoriasContainer) {
+        // Inicia o SortableJS no nosso container de categorias
+        new Sortable(categoriasContainer, {
+            handle: '.handle-drag', // Define que o arraste só começa ao clicar na "alça" (ícone ⠿)
+            animation: 150,
+            ghostClass: 'sortable-ghost', // Classe de estilo para o placeholder
+
+            // Função que é executada QUANDO você solta uma categoria na nova posição
+            onEnd: function (evt) {
+                // Pega todos os blocos de categoria na nova ordem em que estão na tela
+                const blocos = categoriasContainer.querySelectorAll('.categoria-bloco');
+
+                // Cria uma lista apenas com os IDs, na nova ordem
+                const novaOrdemIds = Array.from(blocos).map(bloco => bloco.dataset.categoriaId);
+
+                console.log("Nova ordem de IDs para salvar:", novaOrdemIds);
+
+                // Chama a função que envia a nova ordem para o backend
+                salvarNovaOrdemCategorias(novaOrdemIds);
+            }
+        });
+    }
+
+    /**
+     * Envia a nova lista de IDs de categoria para a API no backend.
+     * @param {Array<string>} ordemIds - Um array com os IDs das categorias na nova ordem.
+     */
+    async function salvarNovaOrdemCategorias(ordemIds) {
+        const payload = {
+            ordem_ids: ordemIds
+        };
+
+        try {
+            const response = await fetch('/api/reordenar-categorias/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                console.log(data.message); // Sucesso!
+            } else {
+                alert('Ocorreu um erro ao salvar a nova ordem: ' + data.error);
+                // Futuramente, podemos reverter a ordem visualmente aqui se o backend falhar
+            }
+        } catch (error) {
+            console.error('Erro de rede:', error);
+        }
+    }
+    // ================================================================= fim
+    // ================================================================= fim
+
+    // ================================================================= fim
+    // === Função para excluir Categoria ===
+    // ================================================================= fim
+
+    async function excluirCategoria(categoriaId, blocoElemento) {
+        const payload = { categoria_id: categoriaId };
+        try {
+            const response = await fetch('/api/excluir-categoria/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (data.success) {
+                blocoElemento.remove(); // Remove o card da categoria da tela
+            } else {
+                alert('Erro ao excluir categoria: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Erro de rede:', error);
+        }
+    }
+
+    function abrirModalModoEditarCategoria(categoria) {
+        // Guarda o ID da categoria no formulário para sabermos que estamos editando
+        formAdicionarCategoria.dataset.editingId = categoria.id;
+
+        // Muda o título do modal
+        modalCategoria.querySelector('h2').textContent = 'Editar Categoria';
+
+        // Preenche os campos do formulário com os dados atuais
+        document.getElementById('categoria-nome').value = categoria.nome;
+
+        // Abre o modal
+        abrirModalCategoria();
+    }
+
 
 }); // Fim do 'DOMContentLoaded'

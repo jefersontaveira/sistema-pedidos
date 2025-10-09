@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Max
 from django.db.models.functions import Coalesce
 from collections import Counter
 from django.contrib.auth.decorators import login_required
@@ -30,6 +30,7 @@ def pagina_loja(request, slug_da_loja):
     organizado por categorias e produtos.
     """
     loja = get_object_or_404(Loja, slug=slug_da_loja, ativa=True)
+    produtos_disponiveis = Produto.objects.filter(disponivel=True)
 
     # Busca todas as categorias daquela loja e, de quebra, já busca
     # todos os produtos relacionados a elas de uma vez (por performance).
@@ -41,10 +42,6 @@ def pagina_loja(request, slug_da_loja):
     }
 
     return render(request, 'core/pagina_loja.html', context)
-
-
-@csrf_exempt
-# Em core/views.py
 
 @csrf_exempt
 def finalizar_pedido(request):
@@ -128,12 +125,16 @@ def admin_geral(request, loja_id):
     # Busca os entregadores no banco de dados
     entregadores_da_loja = Entregador.objects.filter(loja=loja)
 
+    # Busca todas as categorias da loja e já "pré-carrega" os produtos de cada uma
+    categorias_da_loja = Categoria.objects.filter(loja=loja).prefetch_related('produtos')
+
     context = {
         'loja': loja,
         'pedidos_recebidos': pedidos_ativos.filter(status='recebido'),
         'pedidos_em_preparo': pedidos_ativos.filter(status='em_preparo'),
         'pedidos_prontos': pedidos_ativos.filter(status='pronto'),
         'entregadores': entregadores_da_loja,
+        'categorias': categorias_da_loja,
     }
 
 
@@ -141,42 +142,15 @@ def admin_geral(request, loja_id):
 
 @csrf_exempt
 def atualizar_disponibilidade(request):
-    # Verifica se a requisição é do tipo POST
     if request.method == 'POST':
         try:
-            # Carrega os dados enviados pelo JavaScript
             data = json.loads(request.body)
-            produto_id = data.get('produto_id')
-            tipo_produto = data.get('tipo_produto')
-            disponivel = data.get('disponivel')
-
-            # Mapeia o texto 'tipo_produto' para o Model Django correspondente
-            model_map = {
-                'tamanho': Tamanho,
-                'sabor': Sabor,
-                'adicional': Adicional
-            }
-            Model = model_map.get(tipo_produto)
-
-            # Validação para garantir que os dados necessários foram recebidos
-            if not all([Model, produto_id is not None, disponivel is not None]):
-                return JsonResponse({'success': False, 'error': 'Dados inválidos'})
-
-            # Busca o produto específico no banco de dados
-            produto = Model.objects.get(id=produto_id)
-
-            # Atualiza o campo 'disponivel' com o novo valor
-            produto.disponivel = disponivel
+            produto = Produto.objects.get(id=data.get('produto_id'))
+            produto.disponivel = data.get('disponivel')
             produto.save()
-
-            # Retorna uma resposta de sucesso para o JavaScript
-            return JsonResponse({'success': True, 'message': 'Status atualizado com sucesso!'})
-
-        except Model.DoesNotExist:
-             return JsonResponse({'success': False, 'error': 'Produto não encontrado'})
+            return JsonResponse({'success': True, 'message': 'Disponibilidade atualizada com sucesso!'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-
     return JsonResponse({'success': False, 'error': 'Método inválido'})
 
 def serialize_produto(produto, tipo):
@@ -301,28 +275,30 @@ def editar_produto(request):
 
     return JsonResponse({'success': False, 'error': 'Método inválido'})
 
+
 @csrf_exempt
 def excluir_produto(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            tipo_produto = data.get('tipo_produto')
             produto_id = data.get('produto_id')
 
-            model_map = {'tamanho': Tamanho, 'sabor': Sabor, 'adicional': Adicional}
-            Model = model_map.get(tipo_produto)
+            # Validação para garantir que um ID foi enviado
+            if not produto_id:
+                return JsonResponse({'success': False, 'error': 'ID do produto não foi fornecido.'})
 
-            if not all([Model, produto_id]):
-                return JsonResponse({'success': False, 'error': 'Dados inválidos'})
+            # 1. Encontra o produto no banco de dados usando o ID.
+            #    Usamos 'Produto' diretamente, pois sabemos qual tabela procurar.
+            produto = Produto.objects.get(id=produto_id)
 
-            # Busca o produto existente e o deleta
-            produto = Model.objects.get(id=produto_id)
+            # 2. Deleta o objeto do banco de dados.
             produto.delete()
 
+            # 3. Retorna uma resposta de sucesso para o JavaScript.
             return JsonResponse({'success': True, 'message': 'Produto excluído com sucesso!'})
 
-        except Model.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Produto não encontrado'})
+        except Produto.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Produto não encontrado.'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
@@ -464,6 +440,115 @@ def atribuir_entregador(request):
 
             pedido.save()
             return JsonResponse({'success': True, 'message': 'Entregador atribuído com sucesso!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def reordenar_categorias(request):
+    if request.method == 'POST':
+        try:
+            # Recebe a lista de IDs na nova ordem enviada pelo JavaScript
+            data = json.loads(request.body)
+            ordem_ids = data.get('ordem_ids', [])
+
+            # Itera sobre a lista recebida
+            for index, categoria_id in enumerate(ordem_ids):
+                # Atualiza o campo 'ordem' de cada categoria com sua nova posição (índice)
+                Categoria.objects.filter(id=categoria_id).update(ordem=index)
+
+            return JsonResponse({'success': True, 'message': 'Ordem das categorias atualizada com sucesso!'})
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def adicionar_categoria(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            loja_id = data.get('loja_id')
+            nome_categoria = data.get('nome')
+
+            loja = Loja.objects.get(id=loja_id)
+
+            if not nome_categoria:
+                return JsonResponse({'success': False, 'error': 'O nome da categoria é obrigatório.'})
+
+            # --- INÍCIO DA NOVA LÓGICA DE ORDEM AUTOMÁTICA ---
+            # 1. Busca a maior 'ordem' que já existe para esta loja.
+            ultima_ordem = Categoria.objects.filter(loja=loja).aggregate(Max('ordem'))['ordem__max']
+
+            # 2. Define a nova ordem. Se não houver nenhuma categoria, começa com 0. Senão, adiciona 1.
+            nova_ordem = 0 if ultima_ordem is None else ultima_ordem + 1
+            # --- FIM DA NOVA LÓGICA ---
+
+            # Cria a nova categoria com a ordem calculada
+            nova_categoria = Categoria.objects.create(
+                loja=loja,
+                nome=nome_categoria,
+                ordem=nova_ordem # Usa a nova ordem
+            )
+
+            return JsonResponse({
+                'success': True,
+                'categoria': {
+                    'id': nova_categoria.id,
+                    'nome': nova_categoria.nome,
+                    'ordem': nova_categoria.ordem
+                }
+            })
+
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def excluir_categoria(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            categoria_id = data.get('categoria_id')
+
+            # Encontra a categoria no banco de dados e a deleta.
+            # Graças ao 'on_delete=models.CASCADE' no model Produto,
+            # todos os produtos desta categoria serão apagados junto.
+            categoria = Categoria.objects.get(id=categoria_id)
+            categoria.delete()
+
+            return JsonResponse({'success': True, 'message': 'Categoria e seus produtos foram excluídos.'})
+
+        except Categoria.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Categoria não encontrada.'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def editar_categoria(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            categoria_id = data.get('categoria_id')
+
+            categoria = Categoria.objects.get(id=categoria_id)
+
+            # Atualiza os campos com os dados recebidos
+            categoria.nome = data.get('nome', categoria.nome)
+            categoria.ordem = data.get('ordem', categoria.ordem)
+            categoria.save()
+
+            return JsonResponse({
+                'success': True,
+                'categoria': {
+                    'id': categoria.id,
+                    'nome': categoria.nome,
+                    'ordem': categoria.ordem
+                }
+            })
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método inválido'})

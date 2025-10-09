@@ -10,6 +10,12 @@ urlpatterns = [
     path('api/editar-produto/', views.editar_produto, name='editar_produto'),
     path('api/excluir-produto/', views.excluir_produto, name='excluir_produto'),
 
+    # Rota para adicionar,editar e excluir uma categoria.
+    path('api/adicionar-categoria/', views.adicionar_categoria, name='adicionar_categoria'),
+    path('api/excluir-categoria/', views.excluir_categoria, name='excluir_categoria'),
+    path('api/editar-categoria/', views.editar_categoria, name='editar_categoria'),
+
+
     path('api/atualizar-status-pedido/', views.atualizar_status_pedido, name='atualizar_status_pedido'),
     path('api/detalhes-pedido/<int:pedido_id>/', views.detalhes_pedido, name='detalhes_pedido'),
 
@@ -29,4 +35,7 @@ urlpatterns = [
 
     # URLs da Página do Cliente (deve vir por último por ser mais genérica)
     path('loja/<uuid:slug_da_loja>/', views.pagina_loja, name='pagina_loja'),
+
+    # URL para mudar a ordem das categorias
+    path('api/reordenar-categorias/', views.reordenar_categorias, name='reordenar_categorias'),
 ]
