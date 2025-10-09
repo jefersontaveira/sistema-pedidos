@@ -523,3 +523,29 @@ def excluir_categoria(request):
             return JsonResponse({'success': False, 'error': str(e)})
 
     return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def editar_categoria(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            categoria_id = data.get('categoria_id')
+
+            categoria = Categoria.objects.get(id=categoria_id)
+
+            # Atualiza os campos com os dados recebidos
+            categoria.nome = data.get('nome', categoria.nome)
+            categoria.ordem = data.get('ordem', categoria.ordem)
+            categoria.save()
+
+            return JsonResponse({
+                'success': True,
+                'categoria': {
+                    'id': categoria.id,
+                    'nome': categoria.nome,
+                    'ordem': categoria.ordem
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método inválido'})

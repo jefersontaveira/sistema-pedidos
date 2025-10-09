@@ -215,6 +215,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const deleteCategoryButton = event.target.closest('.btn-excluir-categoria');
         // --- ELEMENTO DO MODAL ADICIONAR PRODUTO
         const addProductButton = event.target.closest('.btn-add-produto-categoria');
+        // --- ELEMENTO DO MODAL EDITAR CATEGORIA
+        const editCategoryButton = event.target.closest('.btn-editar-categoria');
 
 
         // Agora, verificamos qual botão foi de fato clicado
@@ -293,46 +295,61 @@ document.addEventListener('DOMContentLoaded', function() {
             // Chama a função de abrir o modal, já passando a categoria
             abrirModalModoAdicionar(categoriaInfo);
         }
+
+        if (editCategoryButton) {
+            const categoriaBloco = editCategoryButton.closest('.categoria-bloco');
+            const categoria = {
+                id: categoriaBloco.dataset.categoriaId,
+                ordem: categoriaBloco.dataset.categoriaOrdem,
+                nome: categoriaBloco.querySelector('h3').textContent.trim()
+            };
+            abrirModalModoEditarCategoria(categoria);
+        }
     });
 
     // --- LÓGICA PARA ENVIAR O FORMULÁRIO DE NOVA CATEGORIA ---
     if (formAdicionarCategoria) {
         formAdicionarCategoria.addEventListener('submit', async function(event) {
-
-            console.log("Formulário de categoria enviado!");
-            event.preventDefault(); // Impede o recarregamento da página
+            event.preventDefault();
             const button = formAdicionarCategoria.querySelector('button[type="submit"]');
+            const editingId = formAdicionarCategoria.dataset.editingId; // Verifica se está em modo de edição
+
+            let url = '/api/adicionar-categoria/';
+            const payload = {
+                loja_id: lojaId,
+                nome: document.getElementById('categoria-nome').value,
+                ordem: document.getElementById('categoria-ordem').value
+            };
+
+            // Se estiver editando, muda a URL e adiciona o ID da categoria ao payload
+            if (editingId) {
+                url = '/api/editar-categoria/';
+                payload.categoria_id = editingId;
+                payload.ordem = document.getElementById('categoria-ordem').value;
+            }
 
             try {
-                // Desabilita o botão para impedir múltiplos cliques
-                button.disabled = true;
-                button.textContent = 'Salvando...';
-
-                const nome = document.getElementById('categoria-nome').value;
-                const payload = {
-                    loja_id: lojaId,
-                    nome: nome,
-                };
-
-                const response = await fetch('/api/adicionar-categoria/', {
+                button.disabled = true; button.textContent = 'Salvando...';
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
                 const data = await response.json();
-
                 if (data.success) {
-                    adicionarCategoriaNaTela(data.categoria);
+                    if (editingId) {
+                        atualizarCategoriaNaTela(data.categoria);
+                    } else {
+                        adicionarCategoriaNaTela(data.categoria);
+                    }
                     fecharModalCategoria();
                 } else {
-                    alert('Erro ao salvar categoria: ' + data.error);
+                    alert('Erro: ' + data.error);
                 }
             } catch (error) {
                 console.error('Erro de rede:', error);
             } finally {
-                // Reabilita o botão ao final, seja em sucesso ou erro
-                button.disabled = false;
-                button.textContent = 'Salvar Categoria';
+                button.disabled = false; button.textContent = 'Salvar Categoria';
             }
         });
     }
@@ -856,5 +873,20 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erro de rede:', error);
         }
     }
+
+    function abrirModalModoEditarCategoria(categoria) {
+        // Guarda o ID da categoria no formulário para sabermos que estamos editando
+        formAdicionarCategoria.dataset.editingId = categoria.id;
+
+        // Muda o título do modal
+        modalCategoria.querySelector('h2').textContent = 'Editar Categoria';
+
+        // Preenche os campos do formulário com os dados atuais
+        document.getElementById('categoria-nome').value = categoria.nome;
+
+        // Abre o modal
+        abrirModalCategoria();
+    }
+
 
 }); // Fim do 'DOMContentLoaded'

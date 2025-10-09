@@ -1066,3 +1066,12 @@ input:checked + .slider:before {
     color: var(--cor-primaria);
     border-color: var(--cor-primaria-clara);
 }
+
+.btn-editar-categoria {
+    color: #007bff; /* Azul */
+}
+
+.btn-editar-categoria:hover {
+    background-color: #007bff;
+    color: white;
+}
