@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const formAdicionarCategoria = document.getElementById('form-adicionar-categoria');
     const formAdicionarProduto = document.getElementById('form-adicionar-produto');
 
+    const modalAdicionar = document.getElementById('modal-adicionar-produto');
+    const modalTitulo = modalAdicionar.querySelector('h2');
+    const tipoProdutoSelect = document.getElementById('produto-categoria');
+
     // --- Eventos para fechar e imprimir o modal de detalhes ---
     if (btnFecharDetalhes) {
         btnFecharDetalhes.addEventListener('click', () => modalDetalhes.classList.remove('active'));
@@ -209,6 +213,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const cancelarButton = event.target.closest('.btn-cancelar-pedido');
         // Procura o botão de Excluir categoria
         const deleteCategoryButton = event.target.closest('.btn-excluir-categoria');
+        // --- ELEMENTO DO MODAL ADICIONAR PRODUTO
+        const addProductButton = event.target.closest('.btn-add-produto-categoria');
+
 
         // Agora, verificamos qual botão foi de fato clicado
         if (deleteButton) {
@@ -276,6 +283,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 excluirCategoria(categoriaId, categoriaBloco);
             }
         }
+
+        if (addProductButton) {
+            // Pega as informações da categoria a partir do botão clicado
+            const categoriaInfo = {
+                id: addProductButton.dataset.categoriaId,
+                nome: addProductButton.dataset.categoriaNome
+            };
+            // Chama a função de abrir o modal, já passando a categoria
+            abrirModalModoAdicionar(categoriaInfo);
+        }
     });
 
     // --- LÓGICA PARA ENVIAR O FORMULÁRIO DE NOVA CATEGORIA ---
@@ -319,11 +336,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    // =================================================================
+    // =================================================================
 
-    /**
-     * Cria o HTML para um novo bloco de categoria e o adiciona na página.
-     * @param {object} categoria - O objeto da categoria retornado pela API.
-     */
+    // =================================================================
+    // == LÓGICA DE ADICIONAR CATEGORIA NA TELA ==
+    // =================================================================
+
+
     function adicionarCategoriaNaTela(categoria) {
         const container = document.getElementById('categorias-container');
         if (!container) return;
@@ -333,7 +353,12 @@ document.addEventListener('DOMContentLoaded', function() {
         novoBloco.dataset.categoriaId = categoria.id;
 
         novoBloco.innerHTML = `
-            <h3><i class="fas fa-grip-vertical handle-drag"></i> ${categoria.nome}</h3>
+            <div class="categoria-header">
+                <h3><i class="fas fa-grip-vertical handle-drag"></i> ${categoria.nome}</h3>
+                <button class="btn-acao-card btn-excluir-categoria" title="Excluir Categoria">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
             <table class="tabela-cardapio">
                 <thead>
                     <tr>
@@ -347,14 +372,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     </tbody>
             </table>
         `;
+        // --- FIM DA CORREÇÃO ---
 
         container.appendChild(novoBloco);
         novoBloco.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
+    // =================================================================
+    // =================================================================
 
     // =================================================================
-    // == 4.6. LÓGICA DE DRAG-AND-DROP DOS PEDIDOS ==
+    // == FUNÇÃO ABRIR O MODAL MODO ADICIONAR ==
+    // =================================================================
+
+    function abrirModalModoAdicionar(categoriaInfo = null) {
+        formAdicionarProduto.removeAttribute('data-editing-id');
+        modalTitulo.textContent = 'Adicionar Novo Produto';
+
+        // Lógica inteligente para a categoria
+        if (categoriaInfo) {
+            tipoProdutoSelect.value = categoriaInfo.id;
+            tipoProdutoSelect.disabled = true; // Trava o seletor
+        } else {
+            tipoProdutoSelect.value = ""; // Começa sem nada selecionado
+            tipoProdutoSelect.disabled = false; // Garante que está destravado
+        }
+
+        // Dispara o evento 'change' para mostrar os campos corretos
+        tipoProdutoSelect.dispatchEvent(new Event('change'));
+        modalAdicionar.classList.add('active');
+    }
+
+
+    // =================================================================
+    // == LÓGICA DE DRAG-AND-DROP DOS PEDIDOS ==
     // =================================================================
 
     const colunas = document.querySelectorAll('.cards-container');
