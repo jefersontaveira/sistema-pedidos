@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'contas',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +138,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels.layers.InMemoryChannelLayer"
     }
 }
+
+LOGIN_URL = 'login' # O 'name' que demos à nossa URL de login
+LOGIN_REDIRECT_URL = '/admin-loja/1/' # Para onde ir após o login com sucesso
+LOGOUT_REDIRECT_URL = 'login' # Para onde ir após fazer logout

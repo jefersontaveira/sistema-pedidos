@@ -1,7 +1,5 @@
 # core/views.py
 
-
-
 import json
 from decimal import Decimal
 from django.http import JsonResponse
@@ -11,6 +9,7 @@ from django.utils import timezone
 from django.db.models import Sum, Count
 from django.db.models.functions import Coalesce
 from collections import Counter
+from django.contrib.auth.decorators import login_required
 
 from .models import (
     Loja,
@@ -118,6 +117,8 @@ def painel_loja(request, loja_id):
     }
     return render(request, 'core/painel_loja.html', context)
 
+
+@login_required
 def admin_geral(request, loja_id):
     loja = get_object_or_404(Loja, id=loja_id)
 
