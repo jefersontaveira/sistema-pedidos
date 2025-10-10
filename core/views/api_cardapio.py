@@ -125,6 +125,23 @@ def editar_categoria(request):
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método inválido'})
 
+@csrf_exempt
+def atualizar_disponibilidade_categoria(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            categoria_id = data.get('categoria_id')
+            disponivel = data.get('disponivel')
+
+            categoria = Categoria.objects.get(id=categoria_id)
+            categoria.disponivel = disponivel
+            categoria.save()
+
+            return JsonResponse({'success': True, 'message': 'Disponibilidade da categoria atualizada!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método inválido'})
+
 
 @csrf_exempt
 def editar_produto(request):

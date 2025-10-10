@@ -16,7 +16,7 @@ def pagina_loja(request, slug_da_loja):
 
     # Busca todas as categorias daquela loja e, de quebra, já busca
     # todos os produtos relacionados a elas de uma vez (por performance).
-    categorias = Categoria.objects.filter(loja=loja).prefetch_related('produtos')
+    categorias = Categoria.objects.filter(loja=loja, disponivel=True).prefetch_related('produtos')
 
     context = {
         'loja': loja,

@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/editar-categoria/', api_cardapio.editar_categoria, name='editar_categoria'),
     path('api/excluir-categoria/', api_cardapio.excluir_categoria, name='excluir_categoria'),
     path('api/reordenar-categorias/', api_cardapio.reordenar_categorias, name='reordenar_categorias'),
+    path('api/atualizar-disponibilidade-categoria/', api_cardapio.atualizar_disponibilidade_categoria, name='atualizar_disponibilidade_categoria'),
 
     path('api/adicionar-produto/', api_cardapio.adicionar_produto, name='adicionar_produto'),
     path('api/editar-produto/', api_cardapio.editar_produto, name='editar_produto'),

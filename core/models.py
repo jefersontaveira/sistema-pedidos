@@ -87,6 +87,7 @@ class Categoria(models.Model):
     loja = models.ForeignKey(Loja, on_delete=models.CASCADE, related_name='categorias')
     nome = models.CharField(max_length=100)
     ordem = models.IntegerField(default=0)
+    disponivel = models.BooleanField(default=True)
 
     class Meta:
         ordering = ['ordem', 'nome']

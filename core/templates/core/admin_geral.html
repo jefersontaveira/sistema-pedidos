@@ -285,6 +285,10 @@
                                             data-categoria-nome="{{ categoria.nome }}">
                                         <i class="fas fa-plus"></i> Adicionar Produto
                                     </button>
+                                    <label class="switch" title="Ativar/Desativar Categoria">
+                                        <input type="checkbox" class="toggle-categoria-disponibilidade" {% if categoria.disponivel %}checked{% endif %}>
+                                        <span class="slider round"></span>
+                                    </label>
                                     <button class="btn-acao-card btn-editar-categoria" title="Editar Categoria">
                                         <i class="fas fa-pencil-alt"></i>
                                     </button>

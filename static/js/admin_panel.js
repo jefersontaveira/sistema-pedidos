@@ -165,7 +165,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
             atribuirEntregador(pedidoId, entregadorId);
         }
+
+        if (event.target.classList.contains('toggle-categoria-disponibilidade')) {
+            const toggle = event.target;
+            const isChecked = toggle.checked;
+            const categoriaBloco = toggle.closest('.categoria-bloco');
+            const categoriaId = categoriaBloco.dataset.categoriaId;
+
+            enviarAtualizacaoDisponibilidadeCategoria(categoriaId, isChecked);
+        }
     });
+
+    async function enviarAtualizacaoDisponibilidadeCategoria(categoriaId, disponivel) {
+        const payload = { categoria_id: categoriaId, disponivel: disponivel };
+        try {
+            const response = await fetch('/api/atualizar-disponibilidade-categoria/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!data.success) {
+                alert('Erro ao atualizar a categoria: ' + data.error);
+            }
+        } catch (error) {
+            console.error('Erro de rede:', error);
+        }
+    }
 
     // =================================================================
     // == LÓGICA PARA ESCOLHER O ENTREGADOR      ==
