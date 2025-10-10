@@ -111,7 +111,6 @@ def editar_categoria(request):
 
             # Atualiza os campos com os dados recebidos
             categoria.nome = data.get('nome', categoria.nome)
-            categoria.ordem = data.get('ordem', categoria.ordem)
             categoria.save()
 
             return JsonResponse({

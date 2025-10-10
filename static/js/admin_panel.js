@@ -25,7 +25,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const modalAdicionar = document.getElementById('modal-adicionar-produto');
     const modalTitulo = modalAdicionar.querySelector('h2');
+    const btnFecharModalProduto = document.getElementById('btn-fechar-modal-produto');
+    const btnCancelarModalProduto = document.getElementById('btn-cancelar-modal-produto');
     const tipoProdutoSelect = document.getElementById('produto-categoria');
+    const produtoCategoriaSelect = document.getElementById('produto-categoria');
+    const fotoPreview = document.getElementById('foto-preview');
 
     // --- Eventos para fechar e imprimir o modal de detalhes ---
     if (btnFecharDetalhes) {
@@ -82,8 +86,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (modalCategoria) modalCategoria.classList.add('active');
     }
     function fecharModalCategoria() {
-        if (modalCategoria) modalCategoria.classList.remove('active');
-        if (formAdicionarCategoria) formAdicionarCategoria.reset();
+        if (modalCategoria) {
+            modalCategoria.classList.remove('active');
+        }
+        if (formAdicionarCategoria) {
+            formAdicionarCategoria.reset();
+        }
     }
 
     // --------------------------------------------- fim
@@ -305,6 +313,35 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             abrirModalModoEditarCategoria(categoria);
         }
+
+        if (btnFecharModalProduto) {
+            btnFecharModalProduto.addEventListener('click', fecharModalAdicionar);
+        }
+
+        if (btnCancelarModalProduto) {
+            btnCancelarModalProduto.addEventListener('click', fecharModalAdicionar);
+        }
+
+        if (modalAdicionar) {
+            modalAdicionar.addEventListener('click', function(event) {
+                if (event.target === modalAdicionar) {
+                    fecharModalAdicionar();
+                }
+            });
+        }
+
+        if (mainContent) {
+            mainContent.addEventListener('click', function(event) {
+                const addProductButton = event.target.closest('.btn-add-produto-categoria');
+                if (addProductButton) {
+                    const categoriaInfo = {
+                        id: addProductButton.dataset.categoriaId,
+                        nome: addProductButton.dataset.categoriaNome
+                    };
+                    abrirModalModoAdicionar(categoriaInfo);
+                }
+            });
+        }
     });
 
     // --- LÓGICA PARA ENVIAR O FORMULÁRIO DE NOVA CATEGORIA ---
@@ -318,18 +355,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const payload = {
                 loja_id: lojaId,
                 nome: document.getElementById('categoria-nome').value,
-                ordem: document.getElementById('categoria-ordem').value
             };
 
             // Se estiver editando, muda a URL e adiciona o ID da categoria ao payload
             if (editingId) {
                 url = '/api/editar-categoria/';
                 payload.categoria_id = editingId;
-                payload.ordem = document.getElementById('categoria-ordem').value;
             }
 
             try {
-                button.disabled = true; button.textContent = 'Salvando...';
+                button.disabled = true;
+                button.textContent = 'Salvando...';
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -352,6 +388,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 button.disabled = false; button.textContent = 'Salvar Categoria';
             }
         });
+
+
     }
     // =================================================================
     // =================================================================
@@ -402,23 +440,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // == FUNÇÃO ABRIR O MODAL MODO ADICIONAR ==
     // =================================================================
 
-    function abrirModalModoAdicionar(categoriaInfo = null) {
+    function abrirModalModoAdicionar(categoriaInfo) {
+        if (!modalAdicionar) return;
         formAdicionarProduto.removeAttribute('data-editing-id');
         modalTitulo.textContent = 'Adicionar Novo Produto';
 
-        // Lógica inteligente para a categoria
         if (categoriaInfo) {
-            tipoProdutoSelect.value = categoriaInfo.id;
-            tipoProdutoSelect.disabled = true; // Trava o seletor
+            produtoCategoriaSelect.value = categoriaInfo.id;
+            produtoCategoriaSelect.disabled = true;
         } else {
-            tipoProdutoSelect.value = ""; // Começa sem nada selecionado
-            tipoProdutoSelect.disabled = false; // Garante que está destravado
+            produtoCategoriaSelect.value = "";
+            produtoCategoriaSelect.disabled = false;
         }
 
-        // Dispara o evento 'change' para mostrar os campos corretos
-        tipoProdutoSelect.dispatchEvent(new Event('change'));
+        fotoPreview.style.display = 'none';
         modalAdicionar.classList.add('active');
     }
+
+    function fecharModalAdicionar() {
+        if (modalAdicionar) {
+            modalAdicionar.classList.remove('active');
+            formAdicionarProduto.reset();
+            produtoCategoriaSelect.disabled = false;
+            formAdicionarProduto.removeAttribute('data-editing-id');
+        }
+    }
+
 
 
     // =================================================================
@@ -888,5 +935,17 @@ document.addEventListener('DOMContentLoaded', function() {
         abrirModalCategoria();
     }
 
+    function atualizarCategoriaNaTela(categoria) {
+        const categoriaBloco = document.querySelector(`.categoria-bloco[data-categoria-id="${categoria.id}"]`);
+        if (categoriaBloco) {
+            // Encontra o h3 dentro do bloco
+            const h3 = categoriaBloco.querySelector('h3');
+            if (h3) {
+                // Preserva o ícone de arrastar e atualiza apenas o texto
+                const iconeHtml = h3.querySelector('i').outerHTML;
+                h3.innerHTML = `${iconeHtml} ${categoria.nome}`;
+            }
+        }
+    }
 
 }); // Fim do 'DOMContentLoaded'

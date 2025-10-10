@@ -6,7 +6,7 @@ from .views import paginas, api_cardapio, api_pedidos, api_dashboard
 urlpatterns = [
     # --- Rotas de Páginas Visíveis para o Usuário ---
     path('admin-loja/<int:loja_id>/', paginas.admin_geral, name='admin_geral'),
-    path('loja/<int:loja_id>/', paginas.pagina_loja, name='pagina_loja'),
+    path('loja/<uuid:slug_da_loja>/', paginas.pagina_loja, name='pagina_loja'),
 
     # --- Rotas de API do Cardápio (usadas pelo admin_panel.js) ---
     path('api/adicionar-categoria/', api_cardapio.adicionar_categoria, name='adicionar_categoria'),
