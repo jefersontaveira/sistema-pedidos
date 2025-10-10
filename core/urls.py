@@ -21,6 +21,11 @@ urlpatterns = [
     # Api do Dashboard
     path('api/dashboard-data/<int:loja_id>/', views.dashboard_data, name='dashboard_data'),
 
+    # API da EQUIPE
+    path('api/equipe/excluir/<int:funcionario_id>/', views.excluir_funcionario, name='excluir_funcionario'),
+    path('api/equipe/detalhes/<int:funcionario_id>/', views.detalhes_funcionario, name='detalhes_funcionario'),
+    path('api/equipe/editar/', views.editar_funcionario, name='editar_funcionario'),
+
     # URLs do Painel do Lojista
     path('painel/<int:loja_id>/', views.painel_loja, name='painel_loja'),
 

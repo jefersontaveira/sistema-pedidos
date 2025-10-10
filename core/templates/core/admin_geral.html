@@ -384,7 +384,7 @@
                         <button class="btn-primario" id="btn-adicionar-funcionario"><i class="fas fa-plus"></i> Adicionar Funcionário</button>
                     </div>
                 </div>
-            
+
                 {# Contadores Dinâmicos: Exibem um resumo rápido da equipe #}
                 <div class="dashboard-grid">
                     <div class="info-card">
@@ -400,7 +400,26 @@
                         <span class="info-valor" id="equipe-entregadores">{{ entregadores_disponiveis_count|default:"0" }}</span>
                     </div>
                 </div>
-            
+
+            <div class="filtros-container" style="display: flex; gap: 20px; margin-bottom: 20px;">
+    <div class="filtro-grupo">
+        <label for="filtro-funcao">Filtrar por Função:</label>
+        <select id="filtro-funcao">
+            <option value="todos">Todos</option>
+            <option value="Atendente">Atendente</option>
+            <option value="Entregador">Entregador</option>
+            <option value="Gerente">Gerente</option>
+        </select>
+    </div>
+    <div class="filtro-grupo">
+        <label for="filtro-status">Filtrar por Status:</label>
+        <select id="filtro-status">
+            <option value="todos">Todos</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+        </select>
+    </div>
+</div>
                 {# Tabela de Funcionários: Lista todos os funcionários cadastrados na loja. O layout segue o padrão da tela de Cardápio. #}
                 <h3>Cadastro de Funcionários</h3>
                 <table class="tabela-cardapio">
@@ -525,7 +544,7 @@
             <form id="form-adicionar-funcionario">
                 {# Token CSRF para proteção contra ataques Cross-Site Request Forgery #}
                 {% csrf_token %}
-                
+
                 {# Campo para selecionar um usuário do sistema #}
                 <div class="campo-grupo">
                     <label for="funcionario-user">Usuário:</label>
