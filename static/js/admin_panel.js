@@ -225,6 +225,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const addProductButton = event.target.closest('.btn-add-produto-categoria');
         // --- ELEMENTO DO MODAL EDITAR CATEGORIA
         const editCategoryButton = event.target.closest('.btn-editar-categoria');
+        // --- ELEMENTO DO MODAL EDITAR PRODUTO
+        const editButton = event.target.closest('.btn-acao-editar');
 
 
         // Agora, verificamos qual botão foi de fato clicado
@@ -342,6 +344,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         }
+
+        if (editButton) {
+            const tr = editButton.closest('tr');
+            // COLETA OS DADOS
+            const produto = {
+                id: tr.dataset.id,
+                nome: tr.cells[0].textContent,
+                preco: tr.cells[1].textContent.replace('R$ ', '').trim(),
+                // Para pegar a descrição e foto, precisaremos de uma chamada de API,
+                // mas por agora vamos preencher com o que temos visível.
+                // O ideal é buscar os dados completos para garantir.
+                // Faremos isso no próximo passo se necessário.
+            };
+            abrirModalModoEditar(produto);
+        }
     });
 
     // --- LÓGICA PARA ENVIAR O FORMULÁRIO DE NOVA CATEGORIA ---
@@ -438,31 +455,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     if (formAdicionarProduto) {
-        formAdicionarProduto.addEventListener('submit', async function(event) {
-            event.preventDefault(); // Impede o recarregamento padrão da página
+    formAdicionarProduto.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const button = formAdicionarProduto.querySelector('button[type="submit"]');
+        const editingId = formAdicionarProduto.dataset.editingId;
 
-            const button = formAdicionarProduto.querySelector('button[type="submit"]');
-            // Verifica se o formulário está em "modo de edição" lendo o data-attribute
-            const editingId = formAdicionarProduto.dataset.editingId;
+        const formData = new FormData(formAdicionarProduto);
+        formData.append('loja_id', lojaId);
 
-            // Cria o "pacote" de dados a partir do formulário.
-            // FormData é essencial para conseguir enviar arquivos (como a foto).
-            const formData = new FormData(formAdicionarProduto);
-            formData.append('loja_id', lojaId);
+        let url = '/api/adicionar-produto/';
+        if (editingId) {
+            url = '/api/editar-produto/';
+            formData.append('produto_id', editingId);
+        }
 
-            const categoriaSelect = document.getElementById('produto-categoria');
-            if (categoriaSelect) {
-                formData.append('categoria', categoriaSelect.value);
-            }
-
-            // Define a URL padrão para "adicionar"
-            let url = '/api/adicionar-produto/';
-
-            // Se estiver editando, muda a URL e adiciona o ID do produto ao pacote
-            if (editingId) {
-                url = '/api/editar-produto/';
-                formData.append('produto_id', editingId);
-            }
+        // Re-habilita temporariamente o select para o FormData pegar seu valor
+        const categoriaSelect = document.getElementById('produto-categoria');
+        if (categoriaSelect.disabled) {
+            categoriaSelect.disabled = false;
+            formData.set('categoria', categoriaSelect.value);
+            categoriaSelect.disabled = true;
+        }
 
             try {
                 // Desabilita o botão para evitar cliques duplos
@@ -1051,6 +1064,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 h3.innerHTML = `${iconeHtml} ${categoria.nome}`;
             }
         }
+    }
+
+    function abrirModalModoEditar(produto) {
+        if (!modalAdicionar) return;
+
+        // Coloca o formulário em "modo de edição"
+        formAdicionarProduto.dataset.editingId = produto.id;
+        modalTitulo.textContent = `Editar Produto: ${produto.nome}`;
+
+        // Busca o 'produto-categoria' select e o desabilita
+        const categoriaSelect = document.getElementById('produto-categoria');
+        // A categoria de um produto existente não deve ser alterada por aqui
+        categoriaSelect.disabled = true;
+
+        // Preenche os campos do formulário com os dados do produto
+        // (Futuramente, buscaremos via API para pegar todos os dados como descrição e foto)
+        document.getElementById('produto-nome').value = produto.nome;
+        document.getElementById('produto-preco').value = produto.preco.replace(',', '.');
+
+        modalAdicionar.classList.add('active');
     }
 
 }); // Fim do 'DOMContentLoaded'

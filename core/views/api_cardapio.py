@@ -130,47 +130,30 @@ def editar_categoria(request):
 def editar_produto(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            tipo_produto = data.get('tipo_produto')
-            produto_id = data.get('produto_id')
-            nome = data.get('nome')
-            preco = data.get('preco')
+            # Usamos request.POST para os dados de texto
+            produto_id = request.POST.get('produto_id')
+            produto = Produto.objects.get(id=produto_id)
 
-            model_map = {'tamanho': Tamanho, 'sabor': Sabor, 'adicional': Adicional}
-            Model = model_map.get(tipo_produto)
+            # Atualiza os campos do produto com os dados do formulário
+            produto.nome = request.POST.get('nome', produto.nome)
+            produto.descricao = request.POST.get('descricao', produto.descricao)
 
-            if not all([Model, produto_id, nome]):
-                return JsonResponse({'success': False, 'error': 'Dados inválidos'})
+            preco_str = request.POST.get('preco')
+            if preco_str:
+                produto.preco = Decimal(str(preco_str).replace(',', '.'))
 
-            # Busca o produto existente no banco
-            produto = Model.objects.get(id=produto_id)
+            # A categoria não é editável neste formulário, então não a alteramos
 
-            # Atualiza os campos
-            produto.nome = nome
-            if tipo_produto in ['tamanho', 'adicional']:
-                # Reutilizamos a mesma lógica de validação de preço
-                if not preco:
-                    preco_decimal = Decimal('0.00')
-                else:
-                    preco_formatado = str(preco).replace(',', '.').strip()
-                    preco_decimal = Decimal(preco_formatado)
+            # Verifica se uma nova foto foi enviada
+            if 'foto' in request.FILES:
+                produto.foto = request.FILES.get('foto')
 
-                if tipo_produto == 'tamanho':
-                    produto.preco_base = preco_decimal
-                else:
-                    produto.preco = preco_decimal
+            produto.save()
 
-            produto.save() # Salva as alterações
+            return JsonResponse({'success': True, 'produto': serialize_produto(produto)})
 
-            return JsonResponse({
-                'success': True,
-                'produto': serialize_produto(produto, tipo_produto)
-            })
-
-        except (Model.DoesNotExist):
-            return JsonResponse({'success': False, 'error': 'Produto não encontrado'})
-        except (Decimal.InvalidOperation, ValueError):
-            return JsonResponse({'success': False, 'error': 'O valor do preço inserido é inválido.'})
+        except Produto.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Produto não encontrado.'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
