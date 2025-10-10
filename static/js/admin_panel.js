@@ -436,6 +436,111 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
     // =================================================================
 
+
+    if (formAdicionarProduto) {
+        formAdicionarProduto.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Impede o recarregamento padrão da página
+
+            const button = formAdicionarProduto.querySelector('button[type="submit"]');
+            // Verifica se o formulário está em "modo de edição" lendo o data-attribute
+            const editingId = formAdicionarProduto.dataset.editingId;
+
+            // Cria o "pacote" de dados a partir do formulário.
+            // FormData é essencial para conseguir enviar arquivos (como a foto).
+            const formData = new FormData(formAdicionarProduto);
+            formData.append('loja_id', lojaId);
+
+            const categoriaSelect = document.getElementById('produto-categoria');
+            if (categoriaSelect) {
+                formData.append('categoria', categoriaSelect.value);
+            }
+
+            // Define a URL padrão para "adicionar"
+            let url = '/api/adicionar-produto/';
+
+            // Se estiver editando, muda a URL e adiciona o ID do produto ao pacote
+            if (editingId) {
+                url = '/api/editar-produto/';
+                formData.append('produto_id', editingId);
+            }
+
+            try {
+                // Desabilita o botão para evitar cliques duplos
+                button.disabled = true;
+                button.textContent = 'Salvando...';
+
+                // Envia o pacote de dados para o endereço da API
+                const response = await fetch(url, {
+                    method: 'POST',
+                    // Ao usar FormData, não definimos o 'Content-Type' header.
+                    // O navegador faz isso automaticamente, o que é crucial para uploads.
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Processa a resposta do backend
+                if (data.success) {
+                    if (editingId) {
+                        // Se estava editando, chama a função para ATUALIZAR a linha na tabela
+                        atualizarLinhaTabela(data.produto);
+                    } else {
+                        // Se estava adicionando, chama a função para ADICIONAR uma nova linha
+                        adicionarLinhaTabela(data.produto);
+                    }
+                    fecharModalAdicionar(); // Fecha o popup em caso de sucesso
+                } else {
+                    alert('Erro ao salvar produto: ' + data.error);
+                }
+
+            } catch (error) {
+                console.error('Erro de rede ao salvar produto:', error);
+                alert('Falha de conexão. Não foi possível salvar o produto.');
+            } finally {
+                // Aconteça o que acontecer (sucesso ou erro), reabilita o botão
+                button.disabled = false;
+                button.textContent = 'Salvar Produto';
+            }
+        });
+    }
+
+    function adicionarLinhaTabela(produto) {
+        // Encontra o corpo da tabela da categoria correta
+        const tabelaBody = document.querySelector(`tbody[data-tipo="${produto.categoria_nome.toLowerCase().replace(/\s+/g, '-')}"]`);
+        if (!tabelaBody) {
+            console.error(`Tabela para a categoria '${produto.categoria_nome}' não encontrada.`);
+            window.location.reload(); // Recarrega a página como fallback
+            return;
+        }
+
+        const novaLinhaHTML = `
+            <tr data-id="${produto.id}" data-tipo="${produto.categoria_nome.toLowerCase().replace(/\s+/g, '-')}">
+                <td>${produto.nome}</td>
+                <td>R$ ${produto.preco}</td>
+                <td>
+                    <label class="switch">
+                        <input type="checkbox" class="toggle-disponibilidade" ${produto.disponivel ? 'checked' : ''}>
+                        <span class="slider round"></span>
+                    </label>
+                </td>
+                <td>
+                    <button class="btn-acao-card btn-acao-editar"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="btn-acao-card btn-acao-excluir"><i class="fas fa-trash-alt"></i></button>
+                </td>
+            </tr>
+        `;
+
+        tabelaBody.insertAdjacentHTML('beforeend', novaLinhaHTML);
+    }
+
+    function atualizarLinhaTabela(produto) {
+        const linha = document.querySelector(`tr[data-id='${produto.id}']`);
+        if (linha) {
+            linha.cells[0].textContent = produto.nome;
+            linha.cells[1].textContent = `R$ ${produto.preco}`;
+            // Poderíamos atualizar o toggle também se a API retornasse essa info
+        }
+    }
     // =================================================================
     // == FUNÇÃO ABRIR O MODAL MODO ADICIONAR ==
     // =================================================================

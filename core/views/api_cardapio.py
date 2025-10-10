@@ -205,73 +205,53 @@ def excluir_produto(request):
 
     return JsonResponse({'success': False, 'error': 'Método inválido'})
 
-def serialize_produto(produto, tipo):
-    """Função auxiliar para converter um objeto de produto em um dicionário."""
+def serialize_produto(produto):
+    categoria = produto.categoria
     data = {
         'id': produto.id,
         'nome': produto.nome,
-        'disponivel': produto.disponivel
+        'descricao': produto.descricao or '',
+        'disponivel': produto.disponivel,
+        'categoria_id': categoria.id,
+        'categoria_nome': categoria.nome,
+        'preco': f'{produto.preco:.2f}'.replace('.', ','),
+        'foto_url': produto.foto.url if produto.foto else None # Adiciona a URL da foto
     }
-    if tipo == 'tamanho':
-        # Forçamos a conversão para Decimal antes de formatar
-        data['preco_base'] = f'{Decimal(produto.preco_base):.2f}'
-    elif tipo == 'adicional':
-        # Forçamos a conversão para Decimal antes de formatar
-        data['preco'] = f'{Decimal(produto.preco):.2f}'
     return data
+
 
 @csrf_exempt
 def adicionar_produto(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
-            loja_id = data.get('loja_id')
-            tipo_produto = data.get('tipo_produto')
-            nome = data.get('nome')
+            # Para FormData, os dados de texto vêm em request.POST
+            # e os arquivos vêm em request.FILES
 
-            # --- INÍCIO DO NOVO BLOCO DE VALIDAÇÃO DE PREÇO ---
+            loja = Loja.objects.get(id=request.POST.get('loja_id'))
+            categoria = Categoria.objects.get(id=request.POST.get('categoria'))
+            nome = request.POST.get('nome')
+            descricao = request.POST.get('descricao')
+            preco_str = request.POST.get('preco', '0')
+            foto = request.FILES.get('foto')  # Pega o arquivo de imagem
 
-            # 1. Pega o preço como veio do frontend (pode ser "10,00", "10.00", "", etc.)
-            preco_str = data.get('preco')
+            if not nome or not preco_str:
+                return JsonResponse({'success': False, 'error': 'Nome e preço são obrigatórios.'})
 
-            # 2. Verifica se o valor é nulo (None) ou uma string vazia. Se for, trata como 0.
-            if not preco_str:
-                preco_decimal = Decimal('0.00')
-            else:
-                # 3. Se não for vazio, preparamos a string para a conversão:
-                #    - str(preco_str): Garante que estamos trabalhando com uma string.
-                #    - .replace(',', '.'): A MÁGICA ACONTECE AQUI! Trocamos a vírgula por ponto.
-                #    - .strip(): Remove espaços em branco extras no início ou fim.
-                preco_formatado = str(preco_str).replace(',', '.').strip()
+            preco_decimal = Decimal(str(preco_str).replace(',', '.'))
 
-                # 4. Agora, convertemos a string limpa e formatada para o tipo Decimal.
-                preco_decimal = Decimal(preco_formatado)
+            # Cria o novo produto, incluindo a foto se ela foi enviada
+            novo_produto = Produto.objects.create(
+                loja=loja,
+                categoria=categoria,
+                nome=nome,
+                descricao=descricao,
+                preco=preco_decimal,
+                foto=foto
+            )
 
-            # --- FIM DO NOVO BLOCO DE VALIDAÇÃO DE PREÇO ---
+            # A função serialize_produto precisa ser ajustada para retornar a URL da foto
+            return JsonResponse({'success': True, 'produto': serialize_produto(novo_produto)})
 
-            loja = Loja.objects.get(id=loja_id)
-            model_map = {'tamanho': Tamanho, 'sabor': Sabor, 'adicional': Adicional}
-            Model = model_map.get(tipo_produto)
-
-            if not Model or not nome:
-                return JsonResponse({'success': False, 'error': 'Dados inválidos'})
-
-            # Usamos a variável 'preco_decimal' que foi tratada
-            if tipo_produto == 'tamanho':
-                novo_produto = Model.objects.create(loja=loja, nome=nome, preco_base=preco_decimal)
-            elif tipo_produto == 'adicional':
-                novo_produto = Model.objects.create(loja=loja, nome=nome, preco=preco_decimal)
-            elif tipo_produto == 'sabor':
-                novo_produto = Model.objects.create(loja=loja, nome=nome)
-
-            return JsonResponse({
-                'success': True,
-                'produto': serialize_produto(novo_produto, tipo_produto)
-            })
-
-        except (Decimal.InvalidOperation, ValueError):
-             # Captura erros específicos de conversão se o usuário digitar algo como "abc"
-            return JsonResponse({'success': False, 'error': 'O valor do preço inserido é inválido.'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
 
