@@ -208,6 +208,26 @@ header h1, header h2 {
     border-bottom: none;
 }
 
+/* Centraliza o cabeçalho e o conteúdo das colunas 'Disponível' e 'Ações' */
+.tabela-cardapio th:nth-child(3), /* Coluna 'Disponível' (3ª coluna) */
+.tabela-cardapio td:nth-child(3),
+.tabela-cardapio th:nth-child(4), /* Coluna 'Ações' (4ª coluna) */
+.tabela-cardapio td:nth-child(4) {
+    text-align: center;
+}
+
+/* Alinha o preço à direita */
+.tabela-cardapio th:nth-child(2), /* Coluna 'Preço' (2ª coluna) */
+.tabela-cardapio td:nth-child(2) {
+    text-align: right;
+    white-space: nowrap; /* Evita que o preço quebre a linha */
+}
+
+/* Garante que os botões de ação fiquem centralizados dentro de sua célula */
+.tabela-cardapio td:nth-child(4) .btn-acao-card {
+    margin: 0 4px; /* Adiciona um pequeno espaçamento entre os botões */
+}
+
 .btn-acao-editar {
     background: none;
     border: 1px solid var(--cor-borda);
@@ -848,4 +868,210 @@ input:checked + .slider:before {
     font-weight: normal;
     color: #6c757d;
     margin-left: 0.5rem;
+}
+
+/* --- Estilos para Reordenação de Categorias --- */
+.categoria-bloco {
+    margin-bottom: 2rem;
+    background-color: var(--cor-fundo-painel);
+    border: 1px solid var(--cor-borda);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    overflow: hidden; /* Garante que a tabela não "vaze" para fora das bordas arredondadas */
+}
+
+/* Estilizamos o h3 para parecer um cabeçalho de card */
+.categoria-bloco h3 {
+    margin: 0;
+    padding: 1rem 1.5rem;
+    font-size: 1.2rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.handle-drag {
+    cursor: grab;
+    color: #adb5bd;
+    margin-right: 10px;
+    transition: color 0.2s;
+}
+
+.categoria-bloco:hover .handle-drag {
+    color: #343a40;
+}
+
+/* A tabela agora não precisa mais parecer um card, pois está dentro de um */
+.tabela-cardapio {
+    width: 100%;
+    border-collapse: collapse;
+    /* Removemos as margens, sombras e bordas que estavam aqui antes */
+}
+
+.tabela-cardapio th, .tabela-cardapio td {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabela-cardapio th {
+    background-color: #f8f9fa; /* Um fundo sutil para o cabeçalho da tabela */
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.tabela-cardapio tr:last-child td {
+    border-bottom: none;
+}
+
+/* Estilo do placeholder fantasma para o drag-and-drop */
+.categoria-bloco.sortable-ghost {
+    opacity: 0.4;
+    background: #e9ecef;
+    border: 2px dashed #6c757d;
+    border-radius: 8px;
+}
+.categoria-bloco.sortable-ghost > * {
+    visibility: hidden;
+}
+
+/* --- Estilos Gerais para Modais (Popups) --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: none; /* Começa escondido */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: var(--cor-fundo-painel);
+    padding: 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content .campo-grupo {
+    margin-top: 1rem;
+}
+
+.modal-content small {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+    border-top: 1px solid var(--cor-borda);
+    padding-top: 1.5rem;
+}
+
+.btn-secundario {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* --- Estilos para o Cabeçalho da Categoria --- */
+.categoria-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--cor-borda);
+}
+
+.categoria-header h3 {
+    margin: 0;
+    padding: 0; /* Remove padding interno do h3 */
+    border-bottom: none; /* Remove a borda interna do h3 */
+}
+
+/* Ajusta a cor do botão de excluir categoria para ser diferente */
+.btn-excluir-categoria {
+    color: #dc3545; /* Vermelho */
+}
+
+.btn-excluir-categoria:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+#modal-adicionar-categoria input[type="text"] {
+    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 5px;
+    margin-left: 5px;
+}
+
+#modal-adicionar-categoria input[type="text"]:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(74, 14, 110, 0.15);
+    outline: none;
+}
+
+/* Container dos botões do header da categoria */
+.categoria-header > div {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Estilo para o novo botão de adicionar produto na categoria */
+.btn-add-produto-categoria {
+    background-color: transparent;
+    border: 1px solid var(--cor-borda);
+    padding: 0.4rem 0.8rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #6c757d;
+    transition: all 0.2s;
+}
+
+.btn-add-produto-categoria:hover {
+    background-color: var(--cor-fundo);
+    color: var(--cor-primaria);
+    border-color: var(--cor-primaria-clara);
+}
+
+.btn-editar-categoria {
+    color: #007bff; /* Azul */
+}
+
+.btn-editar-categoria:hover {
+    background-color: #007bff;
+    color: white;
 }

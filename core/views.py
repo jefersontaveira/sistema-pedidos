@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.db.models import Sum, Count
 from django.db.models.functions import Coalesce
 from collections import Counter
-from django.contrib.auth.models import User
 
 from .models import (
     Loja,
@@ -119,22 +118,14 @@ def painel_loja(request, loja_id):
     }
     return render(request, 'core/painel_loja.html', context)
 
-
-# Alteração nesta função
 def admin_geral(request, loja_id):
     loja = get_object_or_404(Loja, id=loja_id)
-    pedidos_ativos = Pedido.objects.filter(loja=loja).exclude(status__in=['entregue', 'cancelado']).order_by(
-        'data_hora_pedido')
+
+    # Filtra os pedidos que NÃO estão como 'Entregue' para exibir no painel
+    pedidos_ativos = Pedido.objects.filter(loja=loja).exclude(status__in=['entregue', 'cancelado']).order_by('data_hora_pedido')
+
+    # Busca os entregadores no banco de dados
     entregadores_da_loja = Entregador.objects.filter(loja=loja)
-
-    # --- LINHAS NOVAS ADICIONADAS ---
-    # Busca todos os funcionários (vínculos de AcessoLoja) desta loja
-    funcionarios_da_loja = AcessoLoja.objects.filter(loja=loja).select_related('usuario')
-
-    # Busca todos os usuários do sistema que AINDA NÃO estão vinculados a esta loja
-    # Isso é útil para o modal de "Adicionar Funcionário"
-    usuarios_nao_vinculados = User.objects.exclude(acessoloja__loja=loja)
-    # --- FIM DAS LINHAS NOVAS ---
 
     context = {
         'loja': loja,
@@ -142,11 +133,8 @@ def admin_geral(request, loja_id):
         'pedidos_em_preparo': pedidos_ativos.filter(status='em_preparo'),
         'pedidos_prontos': pedidos_ativos.filter(status='pronto'),
         'entregadores': entregadores_da_loja,
-
-        # --- NOVOS DADOS ENVIADOS PARA O TEMPLATE ---
-        'funcionarios': funcionarios_da_loja,
-        'users': usuarios_nao_vinculados,
     }
+
 
     return render(request, 'core/admin_geral.html', context)
 
@@ -478,70 +466,3 @@ def atribuir_entregador(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método inválido'})
-
-#          FUNÇÕES PARA A API DA EQUIPE
-
-@csrf_exempt
-def excluir_funcionario(request, funcionario_id):
-    """
-    Recebe um ID de funcionário via POST e exclui o vínculo dele com a loja.
-    O modelo AcessoLoja é o que representa esse vínculo.
-    """
-    # Apenas requisições do tipo POST são permitidas para evitar exclusões acidentais
-    if request.method == 'POST':
-        try:
-            # Busca o registro do funcionário pelo ID. Se não encontrar, retorna um erro 404.
-            funcionario = get_object_or_404(AcessoLoja, id=funcionario_id)
-            # Deleta o registro do banco de dados.
-            funcionario.delete()
-            # Retorna uma resposta de sucesso em formato JSON para o JavaScript.
-            return JsonResponse({'success': True, 'message': 'Funcionário excluído com sucesso.'})
-        except Exception as e:
-            # Em caso de qualquer outro erro, retorna uma mensagem de erro genérica.
-            return JsonResponse({'success': False, 'error': str(e)})
-
-
-def detalhes_funcionario(request, funcionario_id):
-    """
-    Busca os detalhes de um funcionário específico e os retorna em formato JSON.
-    Usado para preencher o modal de edição no frontend.
-    """
-    try:
-        funcionario = get_object_or_404(AcessoLoja, id=funcionario_id)
-        # Monta um dicionário Python com os dados que o JavaScript precisa.
-        dados = {
-            'id': funcionario.id,
-            'user_id': funcionario.usuario.id,  # O ID do usuário (da tabela auth_user)
-            'funcao': funcionario.funcao,  # A função (ex: "Atendente")
-            'ativo': funcionario.ativo  # O status (true ou false)
-        }
-        # Retorna os dados como uma resposta JSON bem-sucedida.
-        return JsonResponse({'success': True, 'funcionario': dados})
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
-
-
-@csrf_exempt
-def editar_funcionario(request):
-    """
-    Recebe dados via POST (em formato JSON) e atualiza um funcionário existente.
-    """
-    if request.method == 'POST':
-        try:
-            # Carrega os dados JSON enviados pelo JavaScript.
-            data = json.loads(request.body)
-            # Pega o ID do funcionário a ser editado a partir dos dados.
-            funcionario_id = data.get('id')
-            funcionario = get_object_or_404(AcessoLoja, id=funcionario_id)
-
-            # Atualiza os campos do objeto 'funcionario' com os novos dados.
-            funcionario.funcao = data.get('funcao')
-            funcionario.ativo = data.get('ativo', False)  # O 'ativo' vem do checkbox
-
-            # Salva as alterações no banco de dados.
-            funcionario.save()
-
-            # Retorna uma mensagem de sucesso.
-            return JsonResponse({'success': True, 'message': 'Funcionário atualizado com sucesso.'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
