@@ -725,26 +725,32 @@ document.addEventListener('DOMContentLoaded', function() {
             popularDashboard(data); // Chama a função para preencher a tela
         } catch (error) {
             console.error("Falha ao buscar dados do dashboard:", error);
-            // Aqui poderíamos mostrar uma mensagem de erro na tela
         }
     }
 
-    /*
+    /**
      * Preenche os elementos do dashboard com os dados recebidos da API.
+     * @param {object} data - O objeto JSON com as métricas do dashboard.
      */
     function popularDashboard(data) {
+        // Atualiza os cards financeiros
         document.getElementById('db-faturamento-diario').textContent = `R$ ${data.faturamento_diario}`;
         document.getElementById('db-ticket-medio').textContent = `R$ ${data.ticket_medio}`;
 
+        // Atualiza o card de forma de pagamento
         if (data.pagamento_mais_usado) {
             const totalPedidos = data.pedidos_count;
             const percentual = totalPedidos > 0 ? ((data.pagamento_mais_usado.count / totalPedidos) * 100).toFixed(0) : 0;
-            const nomePagamento = data.pagamento_mais_usado.forma_pagamento.charAt(0).toUpperCase() + data.pagamento_mais_usado.forma_pagamento.slice(1);
+            // O nome do campo agora é 'forma_pagamento__nome'
+            const nomePagamento = data.pagamento_mais_usado.forma_pagamento__nome;
             document.getElementById('db-pagamento-label').textContent = `${nomePagamento} ${percentual}%`;
+        } else {
+            document.getElementById('db-pagamento-label').textContent = `N/A 0%`;
         }
 
+        // Atualiza a lista de produtos mais vendidos
         const listaProdutos = document.getElementById('db-produtos-vendidos');
-        listaProdutos.innerHTML = ''; // Limpa a lista de "Carregando..."
+        listaProdutos.innerHTML = ''; // Limpa a lista
         if (data.produtos_mais_vendidos.length > 0) {
             data.produtos_mais_vendidos.forEach(produto => {
                 const li = document.createElement('li');
@@ -753,13 +759,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         } else {
             const li = document.createElement('li');
-            li.textContent = 'Nenhuma venda hoje.';
+            li.textContent = 'Nenhuma venda de produto hoje.';
             listaProdutos.appendChild(li);
         }
 
+        // Atualiza os contadores de status dos pedidos
         document.getElementById('db-status-aguardando').textContent = data.contagem_status.aguardando;
         document.getElementById('db-status-em-preparo').textContent = data.contagem_status.em_preparo;
         document.getElementById('db-status-pronto').textContent = data.contagem_status.pronto;
+    }
+
+    // --- Chamadas Iniciais ---
+    // Garante que, se a página carregar no dashboard, os dados sejam buscados
+    if (window.location.hash === '' || window.location.hash === '#view-dashboard') {
+        fetchDashboardData();
     }
 
     /**
