@@ -1,9 +1,10 @@
 # core/urls.py
 
 from django.urls import path
-from .views import paginas, api_cardapio, api_pedidos, api_dashboard
+from . import views
 
 urlpatterns = [
+
     # --- Rotas de Páginas Visíveis para o Usuário ---
     path('admin-loja/<int:loja_id>/', paginas.admin_geral, name='admin_geral'),
     path('loja/<uuid:slug_da_loja>/', paginas.pagina_loja, name='pagina_loja'),
@@ -29,4 +30,3 @@ urlpatterns = [
 
     # --- Rotas de API do Dashboard (usadas pelo admin_panel.js) ---
     path('api/dashboard-data/<int:loja_id>/', api_dashboard.dashboard_data, name='dashboard_data'),
-]
