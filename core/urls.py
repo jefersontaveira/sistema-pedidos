@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/editar-produto/', api_cardapio.editar_produto, name='editar_produto'),
     path('api/excluir-produto/', api_cardapio.excluir_produto, name='excluir_produto'),
     path('api/atualizar-disponibilidade/', api_cardapio.atualizar_disponibilidade, name='atualizar_disponibilidade'),
+    path('api/reordenar-produtos/', api_cardapio.reordenar_produtos, name='reordenar_produtos'),
 
     # --- Rotas de API de Pedidos (usadas pelo main.js e admin_panel.js) ---
     path('loja/finalizar-pedido/', api_pedidos.finalizar_pedido, name='finalizar_pedido'),

@@ -103,9 +103,10 @@ class Produto(models.Model):
     preco = models.DecimalField(max_digits=10, decimal_places=2)
     foto = models.ImageField(upload_to='produtos/', blank=True, null=True)
     disponivel = models.BooleanField(default=True)
+    ordem = models.IntegerField(default=0)
 
     class Meta:
-        ordering = ['nome']
+        ordering = ['ordem']
 
     def __str__(self): return self.nome
 

@@ -312,3 +312,18 @@ def atualizar_disponibilidade(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Método inválido'})
+
+@csrf_exempt
+def reordenar_produtos(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            ordem_ids = data.get('ordem_ids', [])
+
+            for index, produto_id in enumerate(ordem_ids):
+                Produto.objects.filter(id=produto_id).update(ordem=index)
+
+            return JsonResponse({'success': True, 'message': 'Ordem dos produtos atualizada!'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Método inválido'})

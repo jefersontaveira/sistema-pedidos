@@ -1125,4 +1125,39 @@ document.addEventListener('DOMContentLoaded', function() {
         modalAdicionar.classList.add('active');
     }
 
+    const tabelasProdutos = document.querySelectorAll('.tabela-cardapio tbody');
+    tabelasProdutos.forEach(tabelaBody => {
+        new Sortable(tabelaBody, {
+            handle: '.handle-drag',
+            animation: 150,
+
+            onEnd: function (evt) {
+                // Pega a tabela (tbody) onde a mudança ocorreu
+                const tbody = evt.from;
+                // Pega todas as linhas (tr) na nova ordem
+                const linhas = tbody.querySelectorAll('tr[data-produto-id]');
+                // Cria uma lista apenas com os IDs dos produtos
+                const novaOrdemIds = Array.from(linhas).map(linha => linha.dataset.produtoId);
+
+                salvarNovaOrdemProdutos(novaOrdemIds);
+            }
+        });
+    });
+
+    async function salvarNovaOrdemProdutos(ordemIds) {
+        const payload = { ordem_ids: ordemIds };
+        try {
+            const response = await fetch('/api/reordenar-produtos/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            if (!data.success) {
+                alert('Erro ao salvar a nova ordem dos produtos.');
+            }
+        } catch (error) {
+            console.error('Erro de rede:', error);
+        }
+    }
 }); // Fim do 'DOMContentLoaded'
