@@ -1,12 +1,25 @@
 /* static/css/admin_panel.css */
+
+/* --- TEMA PADRÃO (CLARO) --- */
 :root {
-    --cor-primaria: #4a0e6e;
-    --cor-primaria-clara: #6a1b9a;
-    --cor-fundo: #f4f7fa;
-    --cor-fundo-painel: #ffffff;
-    --cor-texto: #333;
-    --cor-texto-claro: #f8f9fa;
-    --cor-borda: #dee2e6;
+    --cor-primaria: #4a0e6e;            /* Roxo principal da marca (usado em botões e destaques) */
+    --cor-primaria-clara: #6a1b9a;      /* Roxo mais claro (usado para efeitos :hover) */
+    --cor-fundo: #f4f7fa;              /* Cinza bem claro do fundo da página */
+    --cor-fundo-painel: #ffffff;        /* Branco dos painéis, cards e popups */
+    --cor-texto-principal: #212529;    /* Cinza quase preto para títulos e textos importantes */
+    --cor-texto-secundario: #6c757d;   /* Cinza médio para textos de apoio e subtítulos */
+    --cor-borda: #dee2e6;              /* Cinza claro para bordas e linhas divisórias */
+    --cor-coluna: #e4e6eb;             /* Cinza para o fundo das colunas do painel Kanban */
+    --cor-texto-claro: #f4f7fa         /* Cinza claro para texto do menu lateral*/
+}
+
+/* --- TEMA ESCURO (DARK MODE) --- */
+body.dark-mode {
+    --cor-fundo: #121212;              /* Fundo principal super escuro */
+    --cor-fundo-painel: #1e1e1e;        /* Cinza escuro para os painéis e cards */
+    --cor-texto-principal: #e9ecef;    /* Cinza bem claro (quase branco) para textos principais */
+    --cor-texto-secundario: #adb5bd;   /* Cinza claro para textos de apoio */
+    --cor-borda: #495057;              /* Cinza escuro para bordas e linhas divisórias */
 }
 
 body {
@@ -69,7 +82,7 @@ body {
 }
 
 .sidebar-menu .menu-item.active a {
-    background-color: #ffffff;
+    background-color: var(--cor-fundo-painel);
     color: var(--cor-primaria);
     font-weight: bold;
 }
@@ -95,57 +108,48 @@ body {
     padding-bottom: 0.5rem;
 }
 
-/* static/css/painel.css */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0;
-    background-color: #f0f2f5;
-}
-header {
-    background-color: #4a0e6e;
-    color: white;
-    padding: 1rem 2rem;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-header h1, header h2 {
-    margin: 0;
-}
+
 .painel-container {
     display: flex;
     justify-content: space-around;
     padding: 2rem;
     gap: 2rem;
 }
+
 .coluna-pedidos {
     flex: 1;
-    background-color: #e4e6eb;
+    background-color: var(--cor-coluna)
     border-radius: 8px;
     padding: 1rem;
 }
+
 .coluna-pedidos h3 {
     text-align: center;
     margin-top: 0;
-    border-bottom: 2px solid #ccc;
+    border-bottom: 2px solid var(--cor-borda);
     padding-bottom: 0.5rem;
 }
+
 .cards-container {
     min-height: 70vh; /* Altura mínima para a coluna parecer preenchida */
     padding: 0.5rem;
 }
+
 .card-pedido {
-    background-color: white;
+    background-color: var(--cor-fundo-branca);
     border-radius: 8px;
     padding: 1rem;
     margin-bottom: 1rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     border-left: 5px solid #007bff; /* Azul para "Recebidos" */
 }
+
 .card-pedido h4 {
     margin: 0 0 0.5rem 0;
     display: flex;
     justify-content: space-between;
 }
+
 .card-pedido p {
     margin: 0.25rem 0;
 }
@@ -154,11 +158,10 @@ header h1, header h2 {
 #coluna-em-preparo .card-pedido {
     border-left-color: #ffc107; /* Amarelo para "Em Preparo" */
 }
+
 #coluna-prontos .card-pedido {
     border-left-color: #28a745; /* Verde para "Pronto" */
 }
-
-/* static/css/admin_panel.css - Adicionar ao final */
 
 /* --- Estilos da Seção Cardápio --- */
 .header-view {
@@ -1078,4 +1081,33 @@ input:checked + .slider:before {
 
 .categoria-header .switch {
     margin-right: 0.5rem;
+}
+
+/* --- Estilos para a Página de Configurações --- */
+.config-card {
+    background-color: var(--cor-fundo-painel);
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    max-width: 700px; /* Limita a largura do card */
+}
+.config-card h3 {
+    margin-top: 0;
+    border-bottom: 1px solid var(--cor-borda);
+    padding-bottom: 1rem;
+}
+.config-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+}
+.config-item span {
+    font-weight: bold;
+}
+
+/* Reutilizamos a classe .switch que já temos, mas damos um nome para o container */
+.theme-switch {
+    /* Nenhum estilo extra necessário por enquanto */
 }
