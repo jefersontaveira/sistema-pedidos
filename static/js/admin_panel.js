@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Pega as informações do produto a partir da linha da tabela (<tr>)
             const tr = toggle.closest('tr');
-            const produtoId = tr.dataset.id;
+            const produtoId = tr.dataset.produtoId;
 
             // Chama a função que se comunica com o backend
             enviarAtualizacaoDisponibilidade(produtoId, isChecked);
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Agora, verificamos qual botão foi de fato clicado
         if (deleteButton) {
             const tr = deleteButton.closest('tr');
-            const produtoId = tr.dataset.id;
+            const produtoId = tr.dataset.produtoId;
             const nomeProduto = tr.cells[0].textContent;
             if (confirm(`Você tem certeza que deseja excluir o item "${nomeProduto}"?`)) {
                 excluirProduto(produtoId, tr);
@@ -375,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const tr = editButton.closest('tr');
             // COLETA OS DADOS
             const produto = {
-                id: tr.dataset.id,
+                id: tr.dataset.produtoId,
                 nome: tr.cells[0].textContent,
                 preco: tr.cells[1].textContent.replace('R$ ', '').trim(),
                 // Para pegar a descrição e foto, precisaremos de uma chamada de API,
@@ -449,13 +449,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const novoBloco = document.createElement('div');
         novoBloco.className = 'categoria-bloco';
         novoBloco.dataset.categoriaId = categoria.id;
+        // Adicionamos também a ordem, para que o botão de editar funcione imediatamente
+        novoBloco.dataset.categoriaOrdem = categoria.ordem;
 
+        // com todos os botões e o interruptor.
         novoBloco.innerHTML = `
             <div class="categoria-header">
                 <h3><i class="fas fa-grip-vertical handle-drag"></i> ${categoria.nome}</h3>
-                <button class="btn-acao-card btn-excluir-categoria" title="Excluir Categoria">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+                <div>
+                    <button class="btn-add-produto-categoria"
+                            data-categoria-id="${categoria.id}"
+                            data-categoria-nome="${categoria.nome}">
+                        <i class="fas fa-plus"></i> Adicionar Produto
+                    </button>
+                    <label class="switch" title="Ativar/Desativar Categoria">
+                        <input type="checkbox" class="toggle-categoria-disponibilidade" checked>
+                        <span class="slider round"></span>
+                    </label>
+                    <button class="btn-acao-card btn-editar-categoria" title="Editar Categoria">
+                        <i class="fas fa-pencil-alt"></i>
+                    </button>
+                    <button class="btn-acao-card btn-excluir-categoria" title="Excluir Categoria">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
             </div>
             <table class="tabela-cardapio">
                 <thead>
@@ -573,9 +590,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function atualizarLinhaTabela(produto) {
-        const linha = document.querySelector(`tr[data-id='${produto.id}']`);
+        const linha = document.querySelector(`tr[data-produto-id='${produto.id}']`);
         if (linha) {
-            linha.cells[0].textContent = produto.nome;
+            linha.cells[0].innerHTML = `<i class="fas fa-grip-vertical handle-drag"></i> ${produto.nome}`;
             linha.cells[1].textContent = `R$ ${produto.preco}`;
             // Poderíamos atualizar o toggle também se a API retornasse essa info
         }
