@@ -1160,4 +1160,39 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Erro de rede:', error);
         }
     }
+
+    // =================================================================
+    // == LÓGICA DO MODO ESCURO (DARK MODE) ==
+    // =================================================================
+
+    const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+
+    // Função que aplica o tema
+    function applyTheme(theme) {
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+            if (themeToggleCheckbox) themeToggleCheckbox.checked = true;
+        } else {
+            document.body.classList.remove('dark-mode');
+            if (themeToggleCheckbox) themeToggleCheckbox.checked = false;
+        }
+    }
+
+    // Ouve o evento de 'change' no novo interruptor
+    if (themeToggleCheckbox) {
+        themeToggleCheckbox.addEventListener('change', () => {
+            if (themeToggleCheckbox.checked) {
+                applyTheme('dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                applyTheme('light');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    }
+
+    // Aplica o tema salvo quando a página carrega
+    applyTheme(savedTheme);
 }); // Fim do 'DOMContentLoaded'
